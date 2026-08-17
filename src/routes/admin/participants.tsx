@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { FileSpreadsheet, Loader2, Plus, Trash2, X } from 'lucide-react'
+import { createFileRoute } from '@tanstack/react-router'
+import { AlertTriangle, FileSpreadsheet, Loader2, Plus, Trash2, X } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
 import {
@@ -12,19 +12,29 @@ import {
   updateParticipant,
 } from '#/lib/admin-api'
 import { requireAdminRoute } from '#/lib/session'
+import { useAction } from '#/lib/use-action'
 import { AdminShell } from '#/components/admin/shell'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/table'
 
 export const Route = createFileRoute('/admin/participants')({
   beforeLoad: requireAdminRoute,
-  loader: async () => ({
-    participants: await listParticipants(),
-    rooms: await listRooms(),
-  }),
+  // Independent queries — fetch concurrently instead of one after the other.
+  loader: async () => {
+    const [participants, rooms] = await Promise.all([listParticipants(), listRooms()])
+    return { participants, rooms }
+  },
   component: AdminParticipants,
 })
 
-const emptyForm = { name: '', designation: '', department: '', phone: '', email: '', idCardNo: '', groupLeader: '' }
+const emptyForm = {
+  name: '',
+  designation: '',
+  department: '',
+  phone: '',
+  email: '',
+  idCardNo: '',
+  groupLeader: '',
+}
 
 type ImportRow = {
   name: string
@@ -37,16 +47,22 @@ type ImportRow = {
 
 function AdminParticipants() {
   const { participants, rooms } = Route.useLoaderData()
-  const router = useRouter()
+
+  const create = useAction(createParticipant)
+  const update = useAction(updateParticipant)
+  const remove = useAction(deleteParticipant)
+  const bulkImport = useAction(bulkImportParticipants)
+
   const [form, setForm] = useState(emptyForm)
   const [showForm, setShowForm] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [parsing, setParsing] = useState(false)
-  const [importSaving, setImportSaving] = useState(false)
   const [importMessage, setImportMessage] = useState<string | null>(null)
   const [pendingRows, setPendingRows] = useState<ImportRow[] | null>(null)
   const [department, setDepartment] = useState('')
+  const [rowPendingId, setRowPendingId] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const actionError = create.error ?? update.error ?? remove.error ?? bulkImport.error
 
   const departments = useMemo(
     () => Array.from(new Set(participants.map((p) => p.department).filter(Boolean))).sort(),
@@ -57,14 +73,12 @@ function AdminParticipants() {
     [participants, department],
   )
 
-  async function refresh() {
-    await router.invalidate()
-  }
-
   function cell(row: Record<string, unknown>, ...keys: string[]) {
     for (const key of keys) {
       const value = row[key]
-      if (value !== undefined && value !== null && String(value).trim() !== '') return String(value).trim()
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        return String(value).trim()
+      }
     }
     return ''
   }
@@ -97,7 +111,6 @@ function AdminParticipants() {
         setImportMessage('No rows with a name were found in that file.')
         return
       }
-
       setPendingRows(rows)
     } catch {
       setImportMessage('Could not read that file — make sure it is a valid .xlsx export.')
@@ -108,62 +121,62 @@ function AdminParticipants() {
 
   async function onSaveImport() {
     if (!pendingRows) return
-    setImportSaving(true)
-    try {
-      const result = await bulkImportParticipants({ data: { rows: pendingRows } })
-      setImportMessage(
-        `Imported ${result.inserted} participant${result.inserted === 1 ? '' : 's'}` +
-          (result.skipped > 0 ? ` · ${result.skipped} skipped (already in the list)` : ''),
-      )
-      setPendingRows(null)
-      await refresh()
-    } finally {
-      setImportSaving(false)
-    }
+    const result = await bulkImport.run({ data: { rows: pendingRows } })
+    if (!result) return
+    setImportMessage(
+      `Imported ${result.inserted} participant${result.inserted === 1 ? '' : 's'}` +
+        (result.skipped > 0 ? ` · ${result.skipped} skipped (already in the list)` : ''),
+    )
+    setPendingRows(null)
   }
 
   async function onCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!form.name.trim()) return
-    setSaving(true)
-    await createParticipant({ data: form })
-    setForm(emptyForm)
-    setShowForm(false)
-    setSaving(false)
-    await refresh()
+    const ok = await create.run({ data: form })
+    if (ok !== undefined) {
+      setForm(emptyForm)
+      setShowForm(false)
+    }
   }
 
   async function onAssignRoom(participantId: number, roomId: string) {
-    await updateParticipant({ data: { id: participantId, roomId: roomId ? Number(roomId) : null } })
-    await refresh()
+    setRowPendingId(participantId)
+    await update.run({ data: { id: participantId, roomId: roomId ? Number(roomId) : null } })
+    setRowPendingId(null)
   }
 
   async function onDelete(id: number) {
     if (!window.confirm('Remove this participant?')) return
-    await deleteParticipant({ data: { id } })
-    await refresh()
+    setRowPendingId(id)
+    await remove.run({ data: { id } })
+    setRowPendingId(null)
   }
 
   return (
     <AdminShell title="Participants">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-sm text-[var(--charcoal-500)]">{visibleParticipants.length} shown · {participants.length} registered</p>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <p className="text-sm text-[var(--charcoal-500)]">
+            {visibleParticipants.length} shown · {participants.length} registered
+          </p>
           {departments.length > 0 && (
             <select
-              className="select"
-              style={{ width: 'auto', minWidth: '14rem' }}
+              className="select sm:w-auto sm:min-w-56"
+              aria-label="Filter by department"
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
             >
               <option value="">All departments</option>
               {departments.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
           )}
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <input
             ref={fileInputRef}
             type="file"
@@ -177,7 +190,11 @@ function AdminParticipants() {
             className="btn btn-outline-forest"
             onClick={() => fileInputRef.current?.click()}
           >
-            {parsing ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileSpreadsheet className="h-5 w-5" strokeWidth={2} />}
+            {parsing ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <FileSpreadsheet className="h-5 w-5" strokeWidth={2} />
+            )}
             Import Excel
           </button>
           <button type="button" className="btn btn-forest" onClick={() => setShowForm((v) => !v)}>
@@ -187,25 +204,45 @@ function AdminParticipants() {
         </div>
       </div>
 
+      {actionError && (
+        <p className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--crimson-600)] bg-[rgba(158,42,43,0.06)] p-4 text-sm font-semibold text-[var(--crimson-700)]">
+          <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2} />
+          {actionError}
+        </p>
+      )}
+
       {importMessage && (
-        <p className="card mt-6 p-6 text-sm font-semibold text-[var(--charcoal-900)]">{importMessage}</p>
+        <p className="card mt-6 p-5 text-sm font-semibold text-[var(--charcoal-900)] sm:p-6">
+          {importMessage}
+        </p>
       )}
 
       {pendingRows && (
-        <div className="card mt-6 p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="card mt-6 p-5 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-lg font-extrabold text-[var(--charcoal-900)]">Review before saving</p>
-              <p className="text-sm text-[var(--charcoal-500)]">{pendingRows.length} rows parsed from the file — nothing has been saved yet.</p>
+              <p className="text-sm text-[var(--charcoal-500)]">
+                {pendingRows.length} rows parsed from the file — nothing has been saved yet.
+              </p>
             </div>
             <div className="flex gap-3">
-              <button type="button" disabled={importSaving} className="btn btn-forest" onClick={onSaveImport}>
-                {importSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" strokeWidth={2.2} />}
-                Save {pendingRows.length} Participants
+              <button
+                type="button"
+                disabled={bulkImport.pending}
+                className="btn btn-forest flex-1 sm:flex-none"
+                onClick={onSaveImport}
+              >
+                {bulkImport.pending ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Plus className="h-5 w-5" strokeWidth={2.2} />
+                )}
+                Save {pendingRows.length}
               </button>
               <button
                 type="button"
-                className="flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--hairline)]"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--hairline)]"
                 aria-label="Cancel import"
                 onClick={() => setPendingRows(null)}
               >
@@ -246,22 +283,98 @@ function AdminParticipants() {
       )}
 
       {showForm && (
-        <form onSubmit={onCreate} className="card mt-6 grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3">
+        <form
+          onSubmit={onCreate}
+          className="card mt-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3"
+        >
           <Field label="Full name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
           <Field label="Designation" value={form.designation} onChange={(v) => setForm({ ...form, designation: v })} />
           <Field label="Department" value={form.department} onChange={(v) => setForm({ ...form, department: v })} />
           <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
           <Field label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-          <Field label="ID card no." value={form.idCardNo} onChange={(v) => setForm({ ...form, idCardNo: v })} />
+          <Field label="Teacher ID" value={form.idCardNo} onChange={(v) => setForm({ ...form, idCardNo: v })} />
           <Field label="Group leader" value={form.groupLeader} onChange={(v) => setForm({ ...form, groupLeader: v })} />
-          <div className="flex items-end gap-3 sm:col-span-2 lg:col-span-3">
-            <button type="submit" disabled={saving} className="btn btn-forest">Save Participant</button>
-            <button type="button" className="btn btn-outline-forest" onClick={() => setShowForm(false)}>Cancel</button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:col-span-2 lg:col-span-3">
+            <button type="submit" disabled={create.pending} className="btn btn-forest">
+              {create.pending && <Loader2 className="h-5 w-5 animate-spin" />}
+              Save Participant
+            </button>
+            <button type="button" className="btn btn-outline-forest" onClick={() => setShowForm(false)}>
+              Cancel
+            </button>
           </div>
         </form>
       )}
 
-      <div className="card mt-6 overflow-x-auto">
+      {/* Mobile: card per participant */}
+      <div className="mt-6 space-y-3 md:hidden">
+        {visibleParticipants.map((p, i) => (
+          <div key={p.id} className="card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-[var(--charcoal-500)]">
+                  #{i + 1} · ID {p.idCardNo || '—'}
+                </p>
+                <p className="font-bold text-[var(--charcoal-900)]">{p.name}</p>
+                {p.designation && (
+                  <p className="text-sm text-[var(--charcoal-500)]">{p.designation}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={rowPendingId === p.id}
+                aria-label={`Remove ${p.name}`}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
+                onClick={() => onDelete(p.id)}
+              >
+                {rowPendingId === p.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                )}
+              </button>
+            </div>
+
+            <dl className="mt-3 space-y-1 text-sm">
+              <div className="flex gap-2">
+                <dt className="shrink-0 font-semibold text-[var(--charcoal-500)]">Dept</dt>
+                <dd className="min-w-0 text-[var(--charcoal-900)]">{p.department || '—'}</dd>
+              </div>
+              <div className="flex gap-2">
+                <dt className="shrink-0 font-semibold text-[var(--charcoal-500)]">Phone</dt>
+                <dd className="min-w-0 text-[var(--charcoal-900)]">{p.phone || '—'}</dd>
+              </div>
+            </dl>
+
+            <label className="mt-3 block">
+              <span className="field-label">Room</span>
+              <select
+                className="select"
+                disabled={rowPendingId === p.id}
+                value={p.roomId ?? ''}
+                onChange={(e) => onAssignRoom(p.id, e.target.value)}
+              >
+                <option value="">Unassigned</option>
+                {rooms.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.roomNumber} ({r.occupancy}/{r.capacity})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ))}
+        {visibleParticipants.length === 0 && (
+          <p className="card p-6 text-center text-sm text-[var(--charcoal-500)]">
+            {participants.length === 0
+              ? 'No participants yet — add the first one above.'
+              : 'No participants in this department.'}
+          </p>
+        )}
+      </div>
+
+      {/* Desktop / tablet: table */}
+      <div className="card mt-6 hidden overflow-x-auto md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -290,6 +403,8 @@ function AdminParticipants() {
                 <TableCell>
                   <select
                     className="select"
+                    aria-label={`Room for ${p.name}`}
+                    disabled={rowPendingId === p.id}
                     value={p.roomId ?? ''}
                     onChange={(e) => onAssignRoom(p.id, e.target.value)}
                   >
@@ -304,11 +419,16 @@ function AdminParticipants() {
                 <TableCell>
                   <button
                     type="button"
+                    disabled={rowPendingId === p.id}
                     aria-label={`Remove ${p.name}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec]"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
                     onClick={() => onDelete(p.id)}
                   >
-                    <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                    {rowPendingId === p.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                    )}
                   </button>
                 </TableCell>
               </TableRow>
@@ -344,7 +464,10 @@ function Field({
 }) {
   return (
     <div>
-      <label className="field-label">{label}{required && ' *'}</label>
+      <label className="field-label">
+        {label}
+        {required && ' *'}
+      </label>
       <input
         type={type}
         required={required}

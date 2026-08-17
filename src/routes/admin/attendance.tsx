@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { Check, RotateCcw, X } from 'lucide-react'
+import { createFileRoute } from '@tanstack/react-router'
+import { AlertTriangle, Check, Loader2, RotateCcw, X } from 'lucide-react'
 
 import { TRAINING_DAYS, clearAttendance, listAttendance, markAttendance } from '#/lib/admin-api'
 import { requireAdminRoute } from '#/lib/session'
+import { useAction } from '#/lib/use-action'
 import { AdminShell } from '#/components/admin/shell'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/table'
 
@@ -17,26 +18,29 @@ export const Route = createFileRoute('/admin/attendance')({
   component: AdminAttendance,
 })
 
+type Status = 'present' | 'absent' | null
+
 function AdminAttendance() {
   const rows = Route.useLoaderData()
   const { day } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const router = useRouter()
   const activeDay = day ?? TRAINING_DAYS[0].value
-  const [pending, setPending] = useState<number | null>(null)
+
+  const mark = useAction(markAttendance)
+  const clear = useAction(clearAttendance)
+  const [pendingId, setPendingId] = useState<number | null>(null)
+  const error = mark.error ?? clear.error
 
   async function setStatus(participantId: number, status: 'present' | 'absent') {
-    setPending(participantId)
-    await markAttendance({ data: { participantId, day: activeDay, status } })
-    await router.invalidate()
-    setPending(null)
+    setPendingId(participantId)
+    await mark.run({ data: { participantId, day: activeDay, status } })
+    setPendingId(null)
   }
 
   async function clearStatus(participantId: number) {
-    setPending(participantId)
-    await clearAttendance({ data: { participantId, day: activeDay } })
-    await router.invalidate()
-    setPending(null)
+    setPendingId(participantId)
+    await clear.run({ data: { participantId, day: activeDay } })
+    setPendingId(null)
   }
 
   const presentCount = rows.filter((r) => r.status === 'present').length
@@ -60,7 +64,56 @@ function AdminAttendance() {
         {presentCount} / {rows.length} marked present
       </p>
 
-      <div className="card mt-6 overflow-x-auto">
+      {error && (
+        <p className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--crimson-600)] bg-[rgba(158,42,43,0.06)] p-4 text-sm font-semibold text-[var(--crimson-700)]">
+          <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2} />
+          {error}
+        </p>
+      )}
+
+      {/* Mobile: one card per participant, full-width tap targets */}
+      <div className="mt-6 space-y-3 md:hidden">
+        {rows.map((r, i) => (
+          <div key={r.participantId} className="card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-[var(--charcoal-500)]">#{i + 1}</p>
+                <p className="font-bold text-[var(--charcoal-900)]">{r.name}</p>
+                <p className="text-sm text-[var(--charcoal-500)]">
+                  {[r.department, r.roomNumber && `Room ${r.roomNumber}`].filter(Boolean).join(' · ') || '—'}
+                </p>
+              </div>
+              <StatusPill status={r.status} />
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <MarkButton
+                variant="present"
+                pending={pendingId === r.participantId}
+                onClick={() => setStatus(r.participantId, 'present')}
+              />
+              <MarkButton
+                variant="absent"
+                pending={pendingId === r.participantId}
+                onClick={() => setStatus(r.participantId, 'absent')}
+              />
+              <MarkButton
+                variant="reset"
+                pending={pendingId === r.participantId}
+                disabled={r.status == null}
+                onClick={() => clearStatus(r.participantId)}
+              />
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && (
+          <p className="card p-6 text-center text-sm text-[var(--charcoal-500)]">
+            No participants to mark yet — add participants first.
+          </p>
+        )}
+      </div>
+
+      {/* Desktop / tablet: table */}
+      <div className="card mt-6 hidden overflow-x-auto md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -76,19 +129,19 @@ function AdminAttendance() {
             {rows.map((r, i) => (
               <TableRow key={r.participantId}>
                 <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                <TableCell className="font-semibold whitespace-normal text-[var(--charcoal-900)]">{r.name}</TableCell>
+                <TableCell className="font-semibold whitespace-normal text-[var(--charcoal-900)]">
+                  {r.name}
+                </TableCell>
                 <TableCell>{r.department || '—'}</TableCell>
                 <TableCell>{r.roomNumber || '—'}</TableCell>
                 <TableCell>
-                  <span className={`pill ${r.status === 'present' ? 'pill-present' : r.status === 'absent' ? 'pill-absent' : 'pill-neutral'}`}>
-                    {r.status ?? 'Not marked'}
-                  </span>
+                  <StatusPill status={r.status} />
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      disabled={pending === r.participantId}
+                      disabled={pendingId === r.participantId}
                       aria-label={`Mark ${r.name} present`}
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--hairline)] text-[var(--forest-800)] hover:bg-[var(--forest-100)] disabled:opacity-40"
                       onClick={() => setStatus(r.participantId, 'present')}
@@ -97,7 +150,7 @@ function AdminAttendance() {
                     </button>
                     <button
                       type="button"
-                      disabled={pending === r.participantId}
+                      disabled={pendingId === r.participantId}
                       aria-label={`Mark ${r.name} absent`}
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--hairline)] text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
                       onClick={() => setStatus(r.participantId, 'absent')}
@@ -106,7 +159,7 @@ function AdminAttendance() {
                     </button>
                     <button
                       type="button"
-                      disabled={pending === r.participantId || r.status == null}
+                      disabled={pendingId === r.participantId || r.status == null}
                       aria-label={`Reset ${r.name} to not marked`}
                       title="Reset to not marked"
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--hairline)] text-[var(--charcoal-500)] hover:bg-[var(--ivory-100)] disabled:opacity-40"
@@ -129,5 +182,53 @@ function AdminAttendance() {
         </Table>
       </div>
     </AdminShell>
+  )
+}
+
+function StatusPill({ status }: { status: Status }) {
+  return (
+    <span
+      className={`pill shrink-0 ${
+        status === 'present' ? 'pill-present' : status === 'absent' ? 'pill-absent' : 'pill-neutral'
+      }`}
+    >
+      {status ?? 'Not marked'}
+    </span>
+  )
+}
+
+function MarkButton({
+  variant,
+  pending,
+  disabled,
+  onClick,
+}: {
+  variant: 'present' | 'absent' | 'reset'
+  pending: boolean
+  disabled?: boolean
+  onClick: () => void
+}) {
+  const styles = {
+    present: 'border-[var(--forest-800)] text-[var(--forest-800)]',
+    absent: 'border-[var(--crimson-600)] text-[var(--crimson-600)]',
+    reset: 'border-[var(--hairline)] text-[var(--charcoal-500)]',
+  }[variant]
+  const label = { present: 'Present', absent: 'Absent', reset: 'Reset' }[variant]
+  const Icon = { present: Check, absent: X, reset: RotateCcw }[variant]
+
+  return (
+    <button
+      type="button"
+      disabled={pending || disabled}
+      className={`flex min-h-11 items-center justify-center gap-1.5 rounded-lg border-2 text-sm font-bold disabled:opacity-40 ${styles}`}
+      onClick={onClick}
+    >
+      {pending ? (
+        <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+      ) : (
+        <Icon className="h-4 w-4" strokeWidth={2.4} />
+      )}
+      {label}
+    </button>
   )
 }

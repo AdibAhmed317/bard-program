@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
 import { AlertTriangle, ArrowLeft, BedDouble, Building2, CheckCircle2, Loader2, Search, XCircle } from 'lucide-react'
 
 import { lookupParticipant } from '#/lib/public-api'
@@ -10,19 +11,25 @@ export const Route = createFileRoute('/lookup')({ component: LookupPage })
 type Result = Awaited<ReturnType<typeof lookupParticipant>> | null
 
 function LookupPage() {
+  const lookup = useServerFn(lookupParticipant)
   const [idCardNo, setIdCardNo] = useState('')
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<Result>(null)
-  const [submitted, setSubmitted] = useState(false)
+  const [failed, setFailed] = useState(false)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (loading) return
     setLoading(true)
-    setSubmitted(true)
+    setFailed(false)
+    setResult(null)
     try {
-      const res = await lookupParticipant({ data: { idCardNo, phone } })
-      setResult(res)
+      setResult(await lookup({ data: { idCardNo, phone } }))
+    } catch {
+      // Network/server failure is different from "no such participant" — say so,
+      // rather than leaving the form looking like nothing happened.
+      setFailed(true)
     } finally {
       setLoading(false)
     }
@@ -81,7 +88,22 @@ function LookupPage() {
             </button>
           </form>
 
-          {submitted && !loading && result && <ResultPanel result={result} />}
+          {failed && !loading && (
+            <div
+              className="mt-6 flex items-start gap-4 rounded-xl border p-5 sm:p-6"
+              style={{ borderColor: 'var(--crimson-600)', background: 'rgba(158, 42, 43, 0.06)' }}
+            >
+              <AlertTriangle className="h-6 w-6 shrink-0 text-[var(--crimson-600)]" strokeWidth={2} />
+              <div>
+                <p className="text-lg font-extrabold text-[var(--charcoal-900)]">Could not check right now</p>
+                <p className="mt-1 text-base text-[var(--charcoal-700)]">
+                  Please check your internet connection and try again in a moment.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!loading && result && <ResultPanel result={result} />}
         </div>
       </div>
     </div>

@@ -214,11 +214,14 @@ function Header() {
   return (
     <header className={`site-header ${scrolled || open ? 'is-solid' : ''}`}>
       <div className="wrap flex items-center justify-between gap-4 py-4">
-        <a href="#home" className="flex items-center gap-3 no-underline">
-          <img src={logoUrl} alt="IIUC crest" className="h-11 w-11 shrink-0 object-contain" />
-          <span className="leading-tight">
+        <a href="#home" className="flex min-w-0 items-center gap-3 no-underline">
+          <img src={logoUrl} alt="IIUC crest" className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11" />
+          <span className="min-w-0 leading-tight">
+            {/* The full university name wraps to three lines on a phone — show the
+                familiar short form there and the full name from sm up. */}
             <span className={`block text-sm font-bold ${dark ? 'text-white' : 'text-[var(--charcoal-900)]'}`}>
-              International Islamic University Chittagong
+              <span className="sm:hidden">IIUC</span>
+              <span className="hidden sm:inline">International Islamic University Chittagong</span>
             </span>
             <span className={`block text-xs font-semibold tracking-wide ${dark ? 'text-white/70' : 'text-[var(--charcoal-500)]'}`}>
               Teachers Development Training 2026
@@ -512,7 +515,7 @@ function Schedule() {
         </p>
       </Reveal>
 
-      <div className="mt-10 flex gap-3" role="tablist" aria-label="Select training day">
+      <div className="mt-10 flex flex-wrap gap-3" role="tablist" aria-label="Select training day">
         <button
           type="button"
           role="tab"

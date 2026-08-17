@@ -392,14 +392,42 @@ summary:focus-visible,
   background: var(--ivory-100);
 }
 
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--forest-950);
+}
+
 .admin-sidebar {
   background: var(--forest-950);
+}
+
+/* Below lg the sidebar is an off-canvas drawer instead of a permanent column,
+   so small screens aren't giving up a third of the viewport to navigation. */
+@media (max-width: 1023px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: 17rem;
+    max-width: 85vw;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+  }
+  .admin-sidebar.is-open {
+    transform: translateX(0);
+  }
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-height: 2.75rem;
   padding: 0.75rem 1rem;
   border-radius: 0.6rem;
   font-weight: 600;
