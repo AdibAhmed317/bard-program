@@ -38,8 +38,11 @@ export const lookupParticipant = createServerFn({ method: 'POST' })
 
     if (!row) return { found: false }
 
-    const storedDigits = (row.phone ?? '').replace(/\D/g, '')
-    if (!storedDigits.includes(inputDigits)) return { found: false }
+    // A participant's phone field can hold multiple comma-separated numbers
+    // (e.g. "01860931204, 01615760051") — require an exact match against one
+    // of them, not just a substring match against the field as a whole.
+    const storedNumbers = (row.phone ?? '').split(',').map((p) => p.replace(/\D/g, ''))
+    if (!storedNumbers.includes(inputDigits)) return { found: false }
 
     const [room] = row.roomId
       ? await db.select({ roomNumber: rooms.roomNumber }).from(rooms).where(eq(rooms.id, row.roomId)).limit(1)
