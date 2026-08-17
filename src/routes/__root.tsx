@@ -1,8 +1,13 @@
-import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import {
+  HeadContent,
+  Link,
+  Scripts,
+  createRootRoute,
+} from '@tanstack/react-router';
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools';
 
-import appCss from '../styles.css?url'
+import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -27,26 +32,34 @@ export const Route = createRootRoute({
   }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,
-})
+});
 
+// added a not found component to handle 404 errors
 function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--ivory-50,#faf7ef)] px-6 text-center">
-      <p className="text-sm font-bold uppercase tracking-[0.25em] text-[var(--forest-800,#1b4332)]">404</p>
-      <h1 className="text-3xl font-extrabold text-[var(--charcoal-900,#201f1a)]">Page not found</h1>
-      <p className="max-w-md text-base text-[var(--charcoal-700,#4a473e)]">
+    <div className='flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--ivory-50,#faf7ef)] px-6 text-center'>
+      <p className='text-sm font-bold uppercase tracking-[0.25em] text-[var(--forest-800,#1b4332)]'>
+        404
+      </p>
+      <h1 className='text-3xl font-extrabold text-[var(--charcoal-900,#201f1a)]'>
+        Page not found
+      </h1>
+      <p className='max-w-md text-base text-[var(--charcoal-700,#4a473e)]'>
         The page you&rsquo;re looking for doesn&rsquo;t exist or may have moved.
       </p>
-      <Link to="/" className="mt-2 font-bold text-[var(--forest-800,#1b4332)] underline underline-offset-4">
+      <Link
+        to='/'
+        className='mt-2 font-bold text-[var(--forest-800,#1b4332)] underline underline-offset-4'
+      >
         Back to the programme page
       </Link>
     </div>
-  )
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <head>
         <HeadContent />
       </head>
@@ -66,5 +79,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
