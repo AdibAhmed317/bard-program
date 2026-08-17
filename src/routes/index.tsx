@@ -19,6 +19,7 @@ import {
 
 import logoUrl from '#/assets/logo.webp'
 import heroFullUrl from '#/assets/herofull.webp'
+import bardPhotoUrl from '#/assets/bard.jpg'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -277,6 +278,13 @@ function Header() {
 function Hero() {
   return (
     <section id="home" className="hero-scene grain relative flex min-h-[100svh] items-end overflow-hidden">
+      <img
+        src={bardPhotoUrl}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ mixBlendMode: 'luminosity', opacity: 0.5 }}
+      />
       <div className="hero-scrim" aria-hidden="true" />
       <div className="wrap relative z-10 flex flex-col gap-10 pb-16 pt-40 sm:pb-24 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
@@ -447,13 +455,17 @@ function VenueFeature() {
   return (
     <section id="venue" aria-labelledby="venue-heading" className="py-24 sm:py-32">
       <div className="wrap grid grid-cols-1 items-center gap-0 lg:grid-cols-12">
-        <Reveal
-          className="hero-scene grain relative order-2 flex h-72 items-center justify-center overflow-hidden sm:h-96 lg:order-1 lg:col-span-8 lg:h-[30rem]"
-          role="img"
-          aria-label="Illustrative architectural motif representing the Lalmai Auditorium at BARD, Cumilla"
-        >
-          <div className="hero-scrim" aria-hidden="true" />
-          <p className="relative z-10 text-xs font-bold uppercase tracking-[0.3em] text-white/50">BARD · Cumilla</p>
+        <Reveal className="relative order-2 h-72 overflow-hidden sm:h-96 lg:order-1 lg:col-span-8 lg:h-[30rem]">
+          <img
+            src={bardPhotoUrl}
+            alt="The main gate of the Bangladesh Academy for Rural Development (BARD), Cumilla"
+            className="h-full w-full object-cover"
+          />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: 'linear-gradient(0deg, rgba(12,35,24,0.55) 0%, transparent 40%)' }}
+            aria-hidden="true"
+          />
         </Reveal>
 
         <Reveal delay={120} className="relative z-10 order-1 -mb-0 lg:order-2 lg:col-span-5 lg:col-start-8 lg:-ml-16">
