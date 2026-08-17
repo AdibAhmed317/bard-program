@@ -219,6 +219,7 @@ function AdminParticipants() {
               <TableHeader>
                 <TableRow>
                   <TableHead>SL</TableHead>
+                  <TableHead>Teacher ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Department</TableHead>
                   <TableHead>Designation</TableHead>
@@ -230,6 +231,7 @@ function AdminParticipants() {
                 {pendingRows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell className="text-muted-foreground">{i + 1}</TableCell>
+                    <TableCell>{r.idCardNo || '—'}</TableCell>
                     <TableCell className="font-semibold whitespace-normal">{r.name}</TableCell>
                     <TableCell>{r.department || '—'}</TableCell>
                     <TableCell>{r.designation || '—'}</TableCell>
@@ -264,6 +266,7 @@ function AdminParticipants() {
           <TableHeader>
             <TableRow>
               <TableHead>SL</TableHead>
+              <TableHead>Teacher ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Phone</TableHead>
@@ -276,6 +279,7 @@ function AdminParticipants() {
             {visibleParticipants.map((p, i) => (
               <TableRow key={p.id}>
                 <TableCell className="text-muted-foreground">{i + 1}</TableCell>
+                <TableCell>{p.idCardNo || '—'}</TableCell>
                 <TableCell className="whitespace-normal">
                   <p className="font-semibold text-[var(--charcoal-900)]">{p.name}</p>
                   <p className="text-xs text-[var(--charcoal-500)]">{p.designation}</p>
@@ -311,7 +315,7 @@ function AdminParticipants() {
             ))}
             {visibleParticipants.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-[var(--charcoal-500)]">
+                <TableCell colSpan={8} className="py-8 text-center text-[var(--charcoal-500)]">
                   {participants.length === 0
                     ? 'No participants yet — add the first one above.'
                     : 'No participants in this department.'}

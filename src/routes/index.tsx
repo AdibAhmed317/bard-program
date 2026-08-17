@@ -7,7 +7,6 @@ import {
   BadgeCheck,
   BookOpen,
   Bus,
-  Landmark,
   Mail,
   MapPin,
   Menu,
@@ -17,6 +16,9 @@ import {
   Users,
   X,
 } from 'lucide-react'
+
+import logoUrl from '#/assets/logo.webp'
+import heroFullUrl from '#/assets/herofull.webp'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -185,6 +187,7 @@ function Home() {
       <Header />
       <main id="main-content">
         <Hero />
+        <Letterhead />
         <Intro />
         <Stats />
         <Journey />
@@ -211,9 +214,7 @@ function Header() {
     <header className={`site-header ${scrolled || open ? 'is-solid' : ''}`}>
       <div className="wrap flex items-center justify-between gap-4 py-4">
         <a href="#home" className="flex items-center gap-3 no-underline">
-          <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border ${dark ? 'border-white/40' : 'border-[var(--forest-800)]/30'}`}>
-            <Landmark className={`h-5 w-5 ${dark ? 'text-white' : 'text-[var(--forest-800)]'}`} strokeWidth={1.6} />
-          </span>
+          <img src={logoUrl} alt="IIUC crest" className="h-11 w-11 shrink-0 object-contain" />
           <span className="leading-tight">
             <span className={`block text-sm font-bold ${dark ? 'text-white' : 'text-[var(--charcoal-900)]'}`}>
               International Islamic University Chittagong
@@ -232,7 +233,7 @@ function Header() {
           ))}
         </nav>
 
-        <a href="#guidelines" className={`hidden btn lg:inline-flex ${dark ? 'btn-outline-ivory' : 'btn-forest'}`}>
+        <a href="/lookup" className={`hidden btn lg:inline-flex ${dark ? 'btn-outline-ivory' : 'btn-forest'}`}>
           Participant Information
         </a>
 
@@ -261,7 +262,7 @@ function Header() {
                 {l.label}
               </a>
             ))}
-            <a href="#guidelines" className="btn btn-forest mt-4 mb-2" onClick={() => setOpen(false)}>
+            <a href="/lookup" className="btn btn-forest mt-4 mb-2" onClick={() => setOpen(false)}>
               Participant Information
             </a>
           </div>
@@ -306,7 +307,7 @@ function Hero() {
             <a href="#programme" className="btn btn-ivory">
               Explore Programme <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
             </a>
-            <a href="#guidelines" className="text-link text-white/85 hover:text-white">
+            <a href="/lookup" className="text-link text-white/85 hover:text-white">
               Participant Information
             </a>
           </div>
@@ -327,6 +328,22 @@ function Hero() {
         </div>
       </div>
     </section>
+  )
+}
+
+/* ------------------------------- letterhead ---------------------------------- */
+
+function Letterhead() {
+  return (
+    <div className="border-b border-[var(--hairline)] bg-[var(--ivory-50)] py-10 sm:py-14">
+      <div className="wrap flex justify-center">
+        <img
+          src={heroFullUrl}
+          alt="International Islamic University Chittagong"
+          className="h-auto w-full max-w-3xl object-contain"
+        />
+      </div>
+    </div>
   )
 }
 
@@ -675,7 +692,7 @@ function FinalCta() {
           </h2>
           <p className="mt-6 text-xl font-bold tracking-wide text-[var(--brass-500)]">20—21 AUGUST 2026 · BARD · CUMILLA</p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="#guidelines" className="btn btn-ivory">
+            <a href="/lookup" className="btn btn-ivory">
               Participant Information <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
             </a>
             <a href="#guidelines" className="btn btn-outline-ivory">
@@ -732,9 +749,7 @@ function Footer() {
       <div className="wrap grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20">
-              <Landmark className="h-5 w-5 text-white" strokeWidth={1.6} />
-            </span>
+            <img src={logoUrl} alt="IIUC crest" className="h-11 w-11 shrink-0 object-contain" />
             <div className="leading-tight">
               <p className="font-extrabold text-white">International Islamic University Chittagong</p>
               <p className="text-sm">Teachers Development Training 2026</p>
@@ -761,9 +776,10 @@ function Footer() {
           </p>
         </div>
       </div>
-      <p className="wrap mt-12 border-t border-white/10 pt-6 text-sm">
-        © 2026 International Islamic University Chittagong (IIUC). All rights reserved.
-      </p>
+      <div className="wrap mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 International Islamic University Chittagong (IIUC). All rights reserved.</p>
+        <a href="/admin/login" className="text-white/50 hover:text-white">Admin Login</a>
+      </div>
     </footer>
   )
 }

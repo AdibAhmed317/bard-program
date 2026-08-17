@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { BedDouble, CalendarCheck2, LayoutDashboard, LogOut, UserCog, Users } from 'lucide-react'
 
 import { authClient } from '#/lib/auth-client'
+import logoUrl from '#/assets/logo.webp'
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -18,9 +19,12 @@ export function AdminShell({ title, children }: { title: string; children: React
   return (
     <div className="admin-shell flex flex-col lg:h-screen lg:flex-row lg:overflow-hidden">
       <aside className="admin-sidebar flex shrink-0 flex-col gap-6 p-6 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:overflow-y-auto">
-        <div>
-          <p className="text-sm font-extrabold text-white">IIUC Admin</p>
-          <p className="text-xs text-white/50">Teachers Development Training 2026</p>
+        <div className="flex items-center gap-3">
+          <img src={logoUrl} alt="IIUC crest" className="h-10 w-10 shrink-0 object-contain" />
+          <div className="leading-tight">
+            <p className="text-sm font-extrabold text-white">IIUC Admin</p>
+            <p className="text-xs text-white/50">Teachers Development Training 2026</p>
+          </div>
         </div>
 
         <nav aria-label="Admin" className="flex flex-row gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">

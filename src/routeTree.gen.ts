@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LookupRouteImport } from './routes/lookup'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAttendanceRouteImport } from './routes/admin/attendance'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
@@ -21,6 +22,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LookupRoute = LookupRouteImport.update({
+  id: '/lookup',
+  path: '/lookup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -61,6 +67,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/lookup': typeof LookupRoute
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/participants': typeof AdminParticipantsRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/lookup': typeof LookupRoute
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/participants': typeof AdminParticipantsRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/lookup': typeof LookupRoute
   '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/participants': typeof AdminParticipantsRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/lookup'
     | '/admin/attendance'
     | '/admin/login'
     | '/admin/participants'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/lookup'
     | '/admin/attendance'
     | '/admin/login'
     | '/admin/participants'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/lookup'
     | '/admin/attendance'
     | '/admin/login'
     | '/admin/participants'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LookupRoute: typeof LookupRoute
   AdminAttendanceRoute: typeof AdminAttendanceRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminParticipantsRoute: typeof AdminParticipantsRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lookup': {
+      id: '/lookup'
+      path: '/lookup'
+      fullPath: '/lookup'
+      preLoaderRoute: typeof LookupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LookupRoute: LookupRoute,
   AdminAttendanceRoute: AdminAttendanceRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminParticipantsRoute: AdminParticipantsRoute,

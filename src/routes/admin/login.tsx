@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Landmark, Loader2, Lock } from 'lucide-react'
+import { Loader2, Lock } from 'lucide-react'
 
 import { authClient } from '#/lib/auth-client'
 import { PasswordField } from '#/components/admin/password-field'
+import logoUrl from '#/assets/logo.webp'
 
 export const Route = createFileRoute('/admin/login')({ component: AdminLogin })
 
@@ -31,9 +32,7 @@ function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-[var(--forest-950)] px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20">
-            <Landmark className="h-6 w-6 text-white" strokeWidth={1.6} />
-          </span>
+          <img src={logoUrl} alt="IIUC crest" className="h-16 w-16 object-contain" />
           <p className="mt-4 text-sm font-bold text-white">International Islamic University Chittagong</p>
           <p className="text-xs text-white/50">Programme Administration</p>
         </div>
