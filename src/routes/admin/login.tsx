@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Landmark, Loader2, Lock } from 'lucide-react'
 
 import { authClient } from '#/lib/auth-client'
+import { PasswordField } from '#/components/admin/password-field'
 
 export const Route = createFileRoute('/admin/login')({ component: AdminLogin })
 
@@ -50,18 +51,14 @@ function AdminLogin() {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          <div>
-            <label htmlFor="password" className="field-label">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          <PasswordField
+            id="password"
+            label="Password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={setPassword}
+          />
 
           {error && <p className="text-sm font-semibold text-[var(--crimson-700)]">{error}</p>}
 

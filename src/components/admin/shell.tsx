@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
-import { BedDouble, CalendarCheck2, LayoutDashboard, LogOut, Users } from 'lucide-react'
+import { BedDouble, CalendarCheck2, LayoutDashboard, LogOut, UserCog, Users } from 'lucide-react'
 
 import { authClient } from '#/lib/auth-client'
 
@@ -9,6 +9,7 @@ const links = [
   { to: '/admin/participants', label: 'Participants', icon: Users },
   { to: '/admin/rooms', label: 'Rooms', icon: BedDouble },
   { to: '/admin/attendance', label: 'Attendance', icon: CalendarCheck2 },
+  { to: '/admin/users', label: 'User Management', icon: UserCog },
 ] as const
 
 export function AdminShell({ title, children }: { title: string; children: ReactNode }) {

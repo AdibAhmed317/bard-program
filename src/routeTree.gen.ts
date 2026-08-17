@@ -15,6 +15,7 @@ import { Route as AdminAttendanceRouteImport } from './routes/admin/attendance'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AdminParticipantsRouteImport } from './routes/admin/participants'
 import { Route as AdminRoomsRouteImport } from './routes/admin/rooms'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const AdminRoomsRoute = AdminRoomsRouteImport.update({
   path: '/admin/rooms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/rooms': typeof AdminRoomsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/rooms': typeof AdminRoomsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/participants': typeof AdminParticipantsRoute
   '/admin/rooms': typeof AdminRoomsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/participants'
     | '/admin/rooms'
+    | '/admin/users'
     | '/admin/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/participants'
     | '/admin/rooms'
+    | '/admin/users'
     | '/admin'
     | '/api/auth/$'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/participants'
     | '/admin/rooms'
+    | '/admin/users'
     | '/admin/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminParticipantsRoute: typeof AdminParticipantsRoute
   AdminRoomsRoute: typeof AdminRoomsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRoomsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminParticipantsRoute: AdminParticipantsRoute,
   AdminRoomsRoute: AdminRoomsRoute,
+  AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
