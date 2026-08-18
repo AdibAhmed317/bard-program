@@ -156,7 +156,7 @@ const schedules: Record<DayKey, ScheduleRow[]> = {
     {
       time: '8:15 AM',
       title: 'Lecture-VII (Teaching from Hadith)',
-      body: 'Prof. Dr. Md. Abul Kalam, Chairman, SHIS, IIUC',
+      body: 'Dr. Md. Abul Kalam, Chairman, SHIS, IIUC',
     },
     {
       time: '9:00 AM',
@@ -373,6 +373,16 @@ const subCommittees = [
         role: 'Asst. Proctor',
         status: 'Member',
       },
+      {
+        name: 'Mohammad Idris Chowdhury',
+        role: 'PS to VC',
+        status: 'Member',
+      },
+      {
+        name: 'Mohammed Fayed',
+        role: 'PS to ProVC',
+        status: 'Member',
+      },
     ],
   },
   {
@@ -388,6 +398,8 @@ const subCommittees = [
         role: 'Additional Director, IASWD',
         status: 'Member',
       },
+      { name: 'Md Ismail Hossain', status: 'Member' },
+      { name: 'Md. Amjad Hossain', status: 'Member' },
     ],
     note: '5 Scout members will be needed as volunteers.',
   },
@@ -1204,9 +1216,11 @@ function Committee() {
                     <span className='font-semibold text-[var(--charcoal-900)]'>
                       {p.name}
                     </span>
-                    <span className='text-[var(--charcoal-700)]'>
-                      , {p.role}
-                    </span>
+                    {p.role && (
+                      <span className='text-[var(--charcoal-700)]'>
+                        , {p.role}
+                      </span>
+                    )}
                   </span>
                   <span
                     className={`shrink-0 text-xs font-bold uppercase tracking-[0.15em] ${
