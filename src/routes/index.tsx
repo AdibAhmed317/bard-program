@@ -53,7 +53,7 @@ const journey = [
     title: 'Evaluation Test',
     body: 'Then prize giving & closing',
   },
-  { tag: '21 AUG · 5:00 PM', title: 'Departure', body: 'Return journey' },
+  { tag: '21 AUG · 5:00 PM', title: 'Departure', body: 'To Chittagong' },
 ];
 
 type ScheduleRow = {
@@ -69,22 +69,22 @@ const dayTabs: { key: DayKey; label: string; heading: string }[] = [
   {
     key: 'day1',
     label: 'Day 1 — 19 Aug',
-    heading: '19/08/2026 — Wednesday (Day 1)',
+    heading: '19/08/2026 Wednesday (Day – 1)',
   },
   {
     key: 'day2',
     label: 'Day 2 — 20 Aug',
-    heading: '20/08/2026 — Thursday (Day 2)',
+    heading: '20/08/2026 Thursday (Day – 2)',
   },
   {
     key: 'day3',
     label: 'Day 3 — 21 Aug',
-    heading: '21/08/2026 — Friday (Day 3)',
+    heading: '21/08/2026 Friday (Day – 3)',
   },
 ];
 
-// Verbatim from context/TDP_2026_Schedule.docx — `body` is the second line of
-// the Activity cell. Keep both in sync with that document.
+// The programme as circulated by the Program Committee. `body` is the second
+// line of the Event / Activity cell.
 const schedules: Record<DayKey, ScheduleRow[]> = {
   day1: [
     { time: '4:00 PM', title: 'Departure from IIUC Campus' },
@@ -95,55 +95,52 @@ const schedules: Record<DayKey, ScheduleRow[]> = {
       title: 'Inaugural Session',
       body: "Prof. Dr. Mohammad Ali Azadi, Hon'ble VC, IIUC",
     },
-    { time: '10:30 PM – 4:30 AM', title: 'Rest' },
+    { time: '10:30 PM - 4:30 AM', title: 'Rest' },
   ],
   day2: [
     { time: '4:30 AM', title: 'Solatul Fazr' },
     { time: '7:00 AM', title: 'Breakfast and Preparation' },
     {
       time: '8:15 AM',
-      title: 'Lecture-I: Teaching from Holy Quran',
+      title: 'Lecture I (Teaching from Holy Qur’an)',
       body: 'Prof. Dr. B. M. Mofizur Rahman al Azhari',
     },
-    { time: '9:00 AM', title: 'Q&A on the Dars' },
+    { time: '9:00 AM', title: 'Q&A on the Lecture-I' },
     {
       time: '9:20 AM',
       title: 'Lecture-II',
-      body: "Prof. Dr. Muhammad Mahbubur Rahman, Hon'ble Treasurer",
+      body: "Prof. Dr. Muhammad Mahbubur Rahman, Hon'ble Treasurer, IIUC",
     },
-    { time: '10:00 AM', title: 'Q&A on the Discussion' },
+    { time: '10:00 AM', title: 'Q&A on the Lecture-II' },
     { time: '10:15 AM', title: 'Tea Break & Networking' },
     {
       time: '10:45 AM',
-      title:
-        'Lecture-III (Higher Studies & Scholarship): Discussion on Moral Teaching',
-      body: 'Prof. Ismail',
+      title: 'Lecture-III (Higher Studies & Scholarship)',
+      body: 'Professor Mohammad Ismail, PhD, Former VC, NSTU',
     },
-    { time: '11:45 AM', title: 'Q&A on the Discussion' },
-    { time: '12:00 PM', title: 'Naseed from Participants' },
+    { time: '11:45 AM', title: 'Q&A on the Lecture-III' },
+    { time: '12:00 PM', title: 'Naseed from participants' },
     {
       time: '12:15 PM',
-      title: 'Lecture-IV',
+      title: 'Lecture-IV (IIUC Service rules - Relevant Provisions)',
       body: "Colonel Md. Quasem, PSC (Retd), Hon'ble Registrar, IIUC",
     },
     { time: '1:00 PM', title: 'Lunch and Prayer Break' },
-    { time: '2:20 PM', title: 'Ready for Next Session' },
+    { time: '2:20 PM', title: 'Ready for Next session' },
     {
       time: '2:30 PM',
-      title:
-        'Workshop/Brainstorming Session — Topics-based Presentation (30 min prep / 5 min presentation)',
-      body: 'Conductors: Rana Ahmed, Nazrul Haque, Sohel Islam, Shamsul Momin, and others',
+      title: 'Workshop [Brainstorming Session-30 mins / Presentation (5 mins)]',
     },
     {
-      time: '3:30 PM',
-      title: 'Lecture-V: Research & Publication',
-      body: 'Professor Dr. Md. Atiar Rahman, Former Vice-Chancellor, RSTU',
+      time: '3:10 PM',
+      title: 'Lecture-V (Research & publication)',
+      body: 'Professor Dr. Md. Atiar Rahman, Former Vice-chancellor, RSTU',
     },
-    { time: '4:30 PM', title: 'Q&A on the Discussion' },
+    { time: '4:30 PM', title: 'Q&A on the Lecture-V' },
     {
       time: '4:45 PM',
       title:
-        'Solatul Asr, Light Refreshment and Roaming around the Academy Compound',
+        "Solatul As'r, Light Refreshment and Roaming around the Academy Compound",
     },
     {
       time: '7:00 PM',
@@ -151,47 +148,38 @@ const schedules: Record<DayKey, ScheduleRow[]> = {
       body: "Prof. Dr. Mohammad Hasmat Ali, Hon'ble Pro VC, IIUC",
     },
     { time: '8:00 PM', title: 'Prayer & Dinner' },
-    {
-      time: '9:15 – 10:30 PM',
-      title: 'Perform as You Like (Program Continues)',
-    },
+    { time: '9:15 PM - 10:30 PM', title: 'Perform as you like' },
   ],
   day3: [
-    { time: '4:50 AM', title: 'Solatul Fazr' },
+    { time: '4:30 AM', title: 'Solatul Fazr' },
     { time: '7:00 AM', title: 'Breakfast and Preparation' },
     {
       time: '8:15 AM',
-      title:
-        'Lecture-VII: Teaching from Hadith (Hadith Jibreel and Teaching Methodology of Prophet Muhammad PBUH)',
+      title: 'Lecture-VII (Teaching from Hadith)',
       body: 'Prof. Dr. Md. Abul Kalam Azad, Chairman, SHIS, IIUC',
     },
     {
-      time: '8:45 AM',
-      title: 'Lecture-VIII: Discussion',
-      body: 'Mr. Mohammad Shahjahan, Vice Chairman, BoT, IIUC — Abu Bakar Rafique',
+      time: '9:00 AM',
+      title: 'Lecture-VIII',
+      body: 'Prof. Dr. Abu Bakr Rafique, Member - BoT, IIUC',
     },
-    { time: '9:45 AM', title: 'Tea Break' },
+    { time: '10:00 AM', title: 'Tea Break' },
     {
-      time: '10:15 AM',
+      time: '10:30 AM',
       title:
-        'Lecture-IX: Discussion: Pedagogy, Teaching Methodology at Tertiary Level',
+        'Lecture-IX (Teaching in Action: Morality, Ethics and Responsive Classrooms)',
       body: 'Professor Niaz Ahmed Khan, Ph.D., Former VC, Dhaka University',
     },
-    { time: '12:30 PM', title: 'Solatul Jumua, and Lunch' },
-    {
-      time: '2:30 PM',
-      title: 'Evaluation Test',
-      body: 'Rana Sir',
-      highlight: true,
-    },
+    { time: '12:15 PM', title: 'Solatul Jumua, and Lunch' },
+    { time: '2:30 PM', title: 'Evaluation Test (Quiz)', highlight: true },
     { time: '3:00 PM', title: 'Reflection' },
     {
       time: '3:30 PM',
       title:
-        'Prize Giving and Closing Session with Vote of Thanks from the Program Convener',
+        'Prize Giving and Closing session with Vote of Thanks from the Program Convener',
     },
     { time: '4:30 PM', title: 'Prayer' },
-    { time: '5:00 PM', title: 'Departure' },
+    { time: '5:00 PM', title: 'Departure to Chittagong' },
   ],
 };
 
