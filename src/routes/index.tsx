@@ -287,24 +287,9 @@ const organisingCommittee = [
   },
 ];
 
-// Sub-committees as formed at the 14 July 2026 meeting. Food is from page 1 of
-// the minutes; the rest from page 2.
+// Sub-committees as formed at the 14 July 2026 meeting, in the order they are
+// serialised in the minutes.
 const subCommittees = [
-  {
-    label: 'Food',
-    people: [
-      {
-        name: 'Prof. Dr. Nazamul Hoque',
-        role: 'Dean, FBS',
-        status: 'Convener',
-      },
-      {
-        name: 'Dr. Mohammad Abul Kalam',
-        role: 'Chairman, SHIS',
-        status: 'Member',
-      },
-    ],
-  },
   {
     label: 'Accommodation & Hospitality',
     people: [
