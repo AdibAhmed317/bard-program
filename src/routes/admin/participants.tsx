@@ -77,7 +77,9 @@ function AdminParticipants() {
     return participants.filter(
       (p) =>
         (!department || p.department === department) &&
-        (!term || p.name.toLowerCase().includes(term)),
+        (!term ||
+          p.name.toLowerCase().includes(term) ||
+          (p.idCardNo ?? '').toLowerCase().includes(term)),
     )
   }, [participants, department, search])
 
@@ -201,8 +203,8 @@ function AdminParticipants() {
               type="search"
               className="input"
               style={{ paddingLeft: '2.25rem' }}
-              placeholder="Search by name"
-              aria-label="Search participants by name"
+              placeholder="Search by name or ID"
+              aria-label="Search participants by name or Teacher ID"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

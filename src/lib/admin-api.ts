@@ -61,6 +61,18 @@ export const listParticipants = createServerFn({ method: 'GET' }).handler(async 
     .orderBy(participants.department, participants.name)
 })
 
+/** Rejects a Teacher ID that another participant already holds. */
+async function assertIdCardFree(idCardNo: string, exceptId?: number) {
+  const [clash] = await db
+    .select({ id: participants.id, name: participants.name })
+    .from(participants)
+    .where(eq(participants.idCardNo, idCardNo))
+    .limit(1)
+  if (clash && clash.id !== exceptId) {
+    throw new Error(`Teacher ID ${idCardNo} is already registered to ${clash.name}.`)
+  }
+}
+
 export const createParticipant = createServerFn({ method: 'POST' })
   .validator(
     (input: {
@@ -75,7 +87,9 @@ export const createParticipant = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     await requireAdminHandler()
-    await db.insert(participants).values(data)
+    const idCardNo = data.idCardNo?.trim() || null
+    if (idCardNo) await assertIdCardFree(idCardNo)
+    await db.insert(participants).values({ ...data, idCardNo })
   })
 
 export const updateParticipant = createServerFn({ method: 'POST' })
@@ -96,6 +110,11 @@ export const updateParticipant = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     await requireAdminHandler()
     const { id, ...rest } = data
+    if (rest.idCardNo !== undefined) {
+      const idCardNo = rest.idCardNo.trim() || null
+      if (idCardNo) await assertIdCardFree(idCardNo, id)
+      rest.idCardNo = idCardNo ?? undefined
+    }
     await db.update(participants).set(rest).where(eq(participants.id, id))
   })
 
@@ -125,11 +144,25 @@ export const bulkImportParticipants = createServerFn({ method: 'POST' })
     const existingIds = new Set(existing.map((e) => e.idCardNo).filter(Boolean))
     const existingEmails = new Set(existing.map((e) => e.email).filter(Boolean))
 
-    const toInsert = data.rows.filter((r) => {
-      if (r.idCardNo && existingIds.has(r.idCardNo)) return false
-      if (r.email && existingEmails.has(r.email)) return false
-      return true
-    })
+    // Also de-duplicate within the uploaded file itself — a spreadsheet that
+    // repeats a Teacher ID would otherwise fail the unique index and abort the
+    // entire import.
+    const seenIds = new Set<string>()
+    const seenEmails = new Set<string>()
+
+    const toInsert = data.rows
+      .map((r) => ({ ...r, idCardNo: r.idCardNo?.trim() || undefined }))
+      .filter((r) => {
+        if (r.idCardNo) {
+          if (existingIds.has(r.idCardNo) || seenIds.has(r.idCardNo)) return false
+          seenIds.add(r.idCardNo)
+        }
+        if (r.email) {
+          if (existingEmails.has(r.email) || seenEmails.has(r.email)) return false
+          seenEmails.add(r.email)
+        }
+        return true
+      })
 
     if (toInsert.length > 0) {
       await db.insert(participants).values(toInsert)

@@ -1,4 +1,15 @@
-import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, unique } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import {
+  boolean,
+  integer,
+  pgEnum,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  unique,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core'
 
 export const todos = pgTable('todos', {
   id: serial().primaryKey(),
@@ -80,19 +91,29 @@ export const rooms = pgTable('rooms', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const participants = pgTable('participants', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  designation: text('designation'),
-  department: text('department'),
-  phone: text('phone'),
-  email: text('email'),
-  idCardNo: text('id_card_no'),
-  groupLeader: text('group_leader'),
-  roomId: integer('room_id').references(() => rooms.id, { onDelete: 'set null' }),
-  notes: text('notes'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-})
+export const participants = pgTable(
+  'participants',
+  {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    designation: text('designation'),
+    department: text('department'),
+    phone: text('phone'),
+    email: text('email'),
+    idCardNo: text('id_card_no'),
+    groupLeader: text('group_leader'),
+    roomId: integer('room_id').references(() => rooms.id, { onDelete: 'set null' }),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  // Teacher IDs must be unique, but participants without one are allowed —
+  // hence a partial index rather than a plain unique column.
+  (t) => [
+    uniqueIndex('participants_id_card_no_unique')
+      .on(t.idCardNo)
+      .where(sql`${t.idCardNo} is not null and ${t.idCardNo} <> ''`),
+  ],
+)
 
 export const sessions = pgTable('sessions', {
   id: serial('id').primaryKey(),
