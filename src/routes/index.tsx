@@ -95,33 +95,88 @@ const moreRules = [
   'Remain with your group until the programme concludes',
 ]
 
-const committeeGroups = [
+// The full committee as recorded in the 14 July 2026 meeting minutes.
+const organisingCommittee = [
+  { name: 'Prof. Dr. Mohammad Hasmat Ali', role: 'Pro Vice Chancellor', status: 'Convener' },
+  { name: 'Prof. Dr. Muhammad Mahbubur Rahman', role: 'Treasurer', status: 'Co-Convener' },
+  { name: 'Prof. Dr. Mohammad Aktaruzzaman Khan', role: 'Director, IQAC', status: 'Member' },
+  { name: 'Prof. Dr. Nazamul Hoque', role: 'Dean, FBS', status: 'Member' },
+  { name: 'Prof. Md. Razu Ahmad', role: 'Dean, FSE', status: 'Member' },
+  { name: 'Prof. Shamsul Alam', role: 'Professor, CSE', status: 'Member' },
+  { name: 'Prof. Mostafa Munir Chy', role: 'Proctor', status: 'Member' },
+  { name: 'Prof. Dr. Md. Azizul Hoque', role: 'Director, CRP', status: 'Member' },
+  { name: 'Prof. Dr. Shariful Hoque', role: 'Chairman, EB', status: 'Member' },
+  { name: 'Prof. Dr. Nazim Uddin', role: 'Chairman, Dept. of Finance', status: 'Member' },
+  { name: 'Dr. Md. Abul Kalam', role: 'Chairman, SHIS', status: 'Member' },
+  { name: 'Dr. Saiful Islam', role: 'Chairman, Law', status: 'Member' },
+  { name: 'Mr. Jalal Uddin', role: 'Director (In charge), ITD', status: 'Member' },
+  { name: 'Mr. Md. Mahfuzur Rahman', role: 'Director (In charge), IASWD', status: 'Member Secretary' },
+]
+
+// Sub-committees as formed at the 14 July 2026 meeting. Food is from page 1 of
+// the minutes; the rest from page 2.
+const subCommittees = [
   {
-    label: 'Programme Leadership',
+    label: 'Food',
     people: [
-      { name: 'Prof. Dr. Mohammad Hasmat Ali', role: 'Pro Vice Chancellor · Convener' },
-      { name: 'Prof. Dr. Muhammad Mahbubur Rahman', role: 'Treasurer · Co-Convener' },
+      { name: 'Prof. Dr. Nazamul Hoque', role: 'Dean, FBS', status: 'Convener' },
+      { name: 'Dr. Mohammad Abul Kalam', role: 'Chairman, SHIS', status: 'Member' },
     ],
   },
   {
-    label: 'Programme Coordination',
-    people: [{ name: 'Md. Mahfuzur Rahman', role: 'Director (In-charge), IASWD · Member Secretary' }],
-  },
-  {
-    label: 'IT & Technical',
+    label: 'Accommodation & Hospitality',
     people: [
-      { name: 'Jalal Uddin', role: 'Director (In-charge), ITD · Convener' },
-      { name: 'Engr. Farman Sikder', role: 'Asst. System Support Engineer' },
-      { name: 'Engr. Adib Ahmed', role: 'Sub-Assistant Programmer' },
+      { name: 'Prof. Shamsul Alam', role: 'Professor, CSE', status: 'Convener' },
+      { name: 'Mr. Md. Mahfuzur Rahman', role: 'Director (In charge), IASWD', status: 'Member' },
     ],
   },
   {
-    label: 'Training & Resource',
+    label: 'Training Module & Resource Person',
     people: [
-      { name: 'Prof. Engr. Md. Razu Ahmed', role: 'Dean, FSE' },
-      { name: 'Prof. Dr. Mohammad Aktaruzzaman Khan', role: 'Director, IQAC' },
-      { name: 'Prof. Dr. Shariful Hoque', role: 'Chairman, EB' },
-      { name: 'Prof. Dr. Md. Azizul Hoque', role: 'Director, CRP' },
+      { name: 'Prof. Dr. Mohammad Hasmat Ali', role: 'Pro Vice Chancellor', status: 'Convener' },
+      { name: 'Prof. Engr. Md. Razu Ahmed', role: 'Dean, FSE', status: 'Member' },
+      { name: 'Prof. Dr. Mohammad Akteruzzaman Khan', role: 'Director, IQAC', status: 'Member' },
+      { name: 'Prof. Dr. Shariful Hoque', role: 'Chairman, EB', status: 'Member' },
+      { name: 'Prof. Dr. Md. Azizul Hoque', role: 'Director, CRP', status: 'Member' },
+    ],
+  },
+  {
+    label: 'Transport',
+    people: [
+      { name: 'Prof. Dr. Mohammad Nazim Uddin', role: 'Chairman, Dept. of Finance', status: 'Convener' },
+      { name: 'Dr. Saiful Islam', role: 'Chairman, Dept. of Law', status: 'Member' },
+      { name: 'Mr. A.H.M. Kamruzzaman', role: 'Assistant Director, TMD', status: 'Member' },
+    ],
+  },
+  {
+    label: 'Information Technology',
+    people: [
+      { name: 'Mr. Jalal Uddin', role: 'Director (In charge), ITD', status: 'Convener' },
+      { name: 'Engr. Farman Sikder', role: 'Asst. System Support Engineer', status: 'Member' },
+      { name: 'Engr. Adib Ahmed', role: 'Sub-Assistant Programmer', status: 'Member' },
+    ],
+  },
+  {
+    label: 'Protocol & Reception',
+    people: [
+      { name: 'Prof. Mostafa Munir Chy', role: 'Proctor', status: 'Convener' },
+      { name: 'Prof. Dr. Serajul Islam', role: 'Dean, FSS', status: 'Member' },
+      { name: 'Mr. Mohammad Shyfur Rahman Chy', role: 'Asst. Proctor', status: 'Member' },
+    ],
+  },
+  {
+    label: 'Program Kits & Crest',
+    people: [
+      { name: 'Prof. Dr. Mohammad Aminul Hoque', role: 'Chairman, DIS', status: 'Convener' },
+      { name: 'Mr. Md. Ershadul Hoque', role: 'Additional Director, IASWD', status: 'Member' },
+    ],
+    note: '5 Scout members will be needed as volunteers.',
+  },
+  {
+    label: 'Program Committee',
+    people: [
+      { name: 'Prof. Dr. Md. Azizul Hoque', role: 'Director, CRP', status: 'Convener' },
+      { name: 'Mr. Md. Mahfuzur Rahman', role: 'Director (In charge), IASWD', status: 'Member' },
     ],
   },
 ]
@@ -640,17 +695,6 @@ function Rules() {
 
 /* -------------------------------- committee ------------------------------------- */
 
-function initials(name: string) {
-  return name
-    .replace(/^(Prof\.|Dr\.|Engr\.|Mr\.|Mrs\.)\s*/g, '')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0])
-    .join('')
-    .toUpperCase()
-}
-
 function Committee() {
   return (
     <section aria-labelledby="committee-heading" className="wrap py-24 sm:py-32">
@@ -661,34 +705,69 @@ function Committee() {
         </h2>
       </Reveal>
 
-      <div className="mt-14 grid grid-cols-1 gap-12 lg:grid-cols-2">
-        {committeeGroups.map((group, gi) => (
-          <Reveal key={group.label} delay={gi * 100}>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[var(--charcoal-500)]">{group.label}</p>
-            <ul className="mt-5 space-y-5">
+      <Reveal className="mt-12">
+        <ol className="border-t border-[var(--hairline)]">
+          {organisingCommittee.map((m, i) => {
+            const isOfficer = m.status !== 'Member'
+            return (
+              <li
+                key={m.name}
+                className="flex flex-col gap-1 border-b border-[var(--hairline)] py-4 sm:flex-row sm:items-baseline sm:gap-6"
+              >
+                <span className="shrink-0 text-sm font-bold tabular-nums text-[var(--charcoal-500)] sm:w-8">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="flex-1 text-base leading-snug sm:text-lg">
+                  <span className="font-bold text-[var(--charcoal-900)]">{m.name}</span>
+                  <span className="text-[var(--charcoal-700)]">, {m.role}</span>
+                </span>
+                <span
+                  className={`shrink-0 text-xs font-bold uppercase tracking-[0.15em] sm:w-40 sm:text-right ${
+                    isOfficer ? 'text-[var(--crimson-600)]' : 'text-[var(--charcoal-500)]'
+                  }`}
+                >
+                  {m.status}
+                </span>
+              </li>
+            )
+          })}
+        </ol>
+      </Reveal>
+
+      <Reveal delay={120} className="mt-16">
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--crimson-600)]">Sub-Committees</p>
+      </Reveal>
+
+      <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2">
+        {subCommittees.map((group, gi) => (
+          <Reveal key={group.label} delay={(gi % 2) * 80}>
+            <h3 className="text-lg font-extrabold text-[var(--charcoal-900)] sm:text-xl">{group.label}</h3>
+            <ul className="mt-3 border-t border-[var(--hairline)]">
               {group.people.map((p) => (
-                <li key={p.name} className="flex items-center gap-4 border-t border-[var(--hairline)] pt-5 first:border-t-0 first:pt-0">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--forest-800)] text-sm font-extrabold text-white">
-                    {initials(p.name)}
+                <li
+                  key={p.name}
+                  className="flex flex-col gap-0.5 border-b border-[var(--hairline)] py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                >
+                  <span className="min-w-0 leading-snug">
+                    <span className="font-semibold text-[var(--charcoal-900)]">{p.name}</span>
+                    <span className="text-[var(--charcoal-700)]">, {p.role}</span>
                   </span>
-                  <div>
-                    <p className="text-lg font-bold text-[var(--charcoal-900)]">{p.name}</p>
-                    <p className="text-sm text-[var(--charcoal-500)]">{p.role}</p>
-                  </div>
+                  <span
+                    className={`shrink-0 text-xs font-bold uppercase tracking-[0.15em] ${
+                      p.status === 'Convener' ? 'text-[var(--crimson-600)]' : 'text-[var(--charcoal-500)]'
+                    }`}
+                  >
+                    {p.status}
+                  </span>
                 </li>
               ))}
             </ul>
+            {group.note && (
+              <p className="mt-3 text-sm italic text-[var(--charcoal-500)]">{group.note}</p>
+            )}
           </Reveal>
         ))}
       </div>
-
-      <Reveal delay={200} className="mt-14 flex flex-wrap gap-3 border-t border-[var(--hairline)] pt-10">
-        {['Food', 'Accommodation & Hospitality', 'Transport', 'Protocol & Reception', 'Program Kits & Crest'].map((s) => (
-          <span key={s} className="rounded-full border border-[var(--hairline)] px-4 py-2 text-sm font-semibold text-[var(--charcoal-700)]">
-            {s}
-          </span>
-        ))}
-      </Reveal>
     </section>
   )
 }
@@ -732,26 +811,27 @@ function Contact() {
         </h2>
       </Reveal>
 
-      <div className="mt-12 grid grid-cols-1 gap-10 sm:grid-cols-2">
-        <Reveal>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--charcoal-500)]">Programme Coordination</p>
-          <p className="mt-3 max-w-md text-lg leading-relaxed text-[var(--charcoal-700)]">
-            For attendance, transport or accommodation queries, contact your Departmental Chairman or
-            the IASWD coordination office at IIUC Kumira Campus.
-          </p>
-        </Reveal>
-        <Reveal delay={90}>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--charcoal-500)]">BARD, Cumilla (Venue)</p>
-          <div className="mt-3 space-y-3">
-            <a href="tel:+880816060166" className="flex items-center gap-3 text-lg font-bold text-[var(--forest-800)]">
-              <Phone className="h-5 w-5" strokeWidth={2} /> +88-081-60601–6
-            </a>
-            <a href="mailto:training.bard@gmail.com" className="flex items-center gap-3 text-lg font-bold text-[var(--forest-800)]">
-              <Mail className="h-5 w-5" strokeWidth={2} /> training.bard@gmail.com
-            </a>
-          </div>
-        </Reveal>
-      </div>
+      <Reveal className="mt-12">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--charcoal-500)]">
+          Programme Coordinator
+        </p>
+        <p className="mt-3 text-2xl font-extrabold text-[var(--charcoal-900)]">Md. Mahfuzur Rahman</p>
+        <p className="text-base text-[var(--charcoal-700)]">Director (In-Charge), IASWD</p>
+        <div className="mt-4 space-y-3">
+          <a
+            href="tel:+8801711481579"
+            className="flex items-center gap-3 text-lg font-bold text-[var(--forest-800)]"
+          >
+            <Phone className="h-5 w-5 shrink-0" strokeWidth={2} /> 01711481579
+          </a>
+          <a
+            href="mailto:nakibmahfuz@gmail.com"
+            className="flex items-center gap-3 break-all text-lg font-bold text-[var(--forest-800)]"
+          >
+            <Mail className="h-5 w-5 shrink-0" strokeWidth={2} /> nakibmahfuz@gmail.com
+          </a>
+        </div>
+      </Reveal>
     </section>
   )
 }

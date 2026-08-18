@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { AlertTriangle, FileSpreadsheet, Loader2, Plus, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Download, FileSpreadsheet, Loader2, Plus, Search, Trash2, X } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
 import {
@@ -59,19 +59,27 @@ function AdminParticipants() {
   const [importMessage, setImportMessage] = useState<string | null>(null)
   const [pendingRows, setPendingRows] = useState<ImportRow[] | null>(null)
   const [department, setDepartment] = useState('')
+  const [search, setSearch] = useState('')
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
   const [rowPendingId, setRowPendingId] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const actionError = create.error ?? update.error ?? remove.error ?? bulkImport.error
+  const actionError =
+    create.error ?? update.error ?? remove.error ?? bulkImport.error ?? exportError
 
   const departments = useMemo(
     () => Array.from(new Set(participants.map((p) => p.department).filter(Boolean))).sort(),
     [participants],
   )
-  const visibleParticipants = useMemo(
-    () => (department ? participants.filter((p) => p.department === department) : participants),
-    [participants, department],
-  )
+  const visibleParticipants = useMemo(() => {
+    const term = search.trim().toLowerCase()
+    return participants.filter(
+      (p) =>
+        (!department || p.department === department) &&
+        (!term || p.name.toLowerCase().includes(term)),
+    )
+  }, [participants, department, search])
 
   function cell(row: Record<string, unknown>, ...keys: string[]) {
     for (const key of keys) {
@@ -121,20 +129,42 @@ function AdminParticipants() {
 
   async function onSaveImport() {
     if (!pendingRows) return
-    const result = await bulkImport.run({ data: { rows: pendingRows } })
-    if (!result) return
+    const res = await bulkImport.run({ data: { rows: pendingRows } })
+    if (!res.ok) return
+    const { inserted, skipped } = res.data
     setImportMessage(
-      `Imported ${result.inserted} participant${result.inserted === 1 ? '' : 's'}` +
-        (result.skipped > 0 ? ` · ${result.skipped} skipped (already in the list)` : ''),
+      `Imported ${inserted} participant${inserted === 1 ? '' : 's'}` +
+        (skipped > 0 ? ` · ${skipped} skipped (already in the list)` : ''),
     )
     setPendingRows(null)
+  }
+
+  async function onExport() {
+    setExporting(true)
+    setExportError(null)
+    try {
+      const { buildParticipantsWorkbook, downloadBlob } = await import('#/lib/excel-export')
+      const blob = await buildParticipantsWorkbook(
+        participants,
+        departments.filter((d): d is string => Boolean(d)),
+      )
+      const stamp = new Date().toISOString().slice(0, 10)
+      downloadBlob(blob, `IIUC-BARD-Participants-${stamp}.xlsx`)
+    } catch (e) {
+      console.error('Excel export failed:', e)
+      setExportError(
+        e instanceof Error ? `Export failed: ${e.message}` : 'Could not build the Excel file.',
+      )
+    } finally {
+      setExporting(false)
+    }
   }
 
   async function onCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!form.name.trim()) return
-    const ok = await create.run({ data: form })
-    if (ok !== undefined) {
+    const res = await create.run({ data: form })
+    if (res.ok) {
       setForm(emptyForm)
       setShowForm(false)
     }
@@ -153,13 +183,30 @@ function AdminParticipants() {
     setRowPendingId(null)
   }
 
+  const emptyMessage = search.trim()
+    ? `No participant matches “${search.trim()}”${department ? ' in this department' : ''}.`
+    : 'No participants in this department.'
+
   return (
     <AdminShell title="Participants">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <p className="text-sm text-[var(--charcoal-500)]">
-            {visibleParticipants.length} shown · {participants.length} registered
-          </p>
+          <label className="relative block sm:w-64">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--charcoal-500)]"
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              className="input"
+              style={{ paddingLeft: '2.25rem' }}
+              placeholder="Search by name"
+              aria-label="Search participants by name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
           {departments.length > 0 && (
             <select
               className="select sm:w-auto sm:min-w-56"
@@ -175,6 +222,9 @@ function AdminParticipants() {
               ))}
             </select>
           )}
+          <p className="shrink-0 text-sm text-[var(--charcoal-500)]">
+            {visibleParticipants.length} shown · {participants.length} total
+          </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
@@ -184,6 +234,20 @@ function AdminParticipants() {
             className="hidden"
             onChange={onImportFile}
           />
+          <button
+            type="button"
+            disabled={participants.length === 0 || exporting}
+            className="btn btn-outline-forest"
+            title="Download all participants, with one sheet per department"
+            onClick={onExport}
+          >
+            {exporting ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Download className="h-5 w-5" strokeWidth={2} />
+            )}
+            Download Excel
+          </button>
           <button
             type="button"
             disabled={parsing}
@@ -368,7 +432,7 @@ function AdminParticipants() {
           <p className="card p-6 text-center text-sm text-[var(--charcoal-500)]">
             {participants.length === 0
               ? 'No participants yet — add the first one above.'
-              : 'No participants in this department.'}
+              : emptyMessage}
           </p>
         )}
       </div>
@@ -438,7 +502,7 @@ function AdminParticipants() {
                 <TableCell colSpan={8} className="py-8 text-center text-[var(--charcoal-500)]">
                   {participants.length === 0
                     ? 'No participants yet — add the first one above.'
-                    : 'No participants in this department.'}
+                    : emptyMessage}
                 </TableCell>
               </TableRow>
             )}

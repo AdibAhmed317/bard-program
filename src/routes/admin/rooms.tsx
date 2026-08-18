@@ -28,8 +28,8 @@ function AdminRooms() {
   async function onCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!form.roomNumber.trim()) return
-    const ok = await create.run({ data: { ...form, capacity: Number(form.capacity) || 1 } })
-    if (ok !== undefined) {
+    const res = await create.run({ data: { ...form, capacity: Number(form.capacity) || 1 } })
+    if (res.ok) {
       setForm(emptyForm)
       setShowForm(false)
     }

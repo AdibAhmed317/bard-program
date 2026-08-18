@@ -1,9 +1,28 @@
 import { createServerFn } from '@tanstack/react-start'
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 
 import { db } from '#/db'
-import { attendance, participants, rooms } from '#/db/schema'
+import { attendance, participants, rooms, sessionResources, sessions } from '#/db/schema'
 import { TRAINING_DAYS } from '#/lib/admin-api'
+import type { ResourceKind } from '#/lib/sessions-api'
+
+type SessionResource = { id: number; kind: ResourceKind; label: string; url: string }
+
+type ScheduleDay = {
+  day: string
+  label: string
+  sessions: {
+    id: number
+    title: string
+    startTime: string | null
+    endTime: string | null
+    place: string | null
+    speaker: string | null
+    moderator: string | null
+    notes: string | null
+    resources: SessionResource[]
+  }[]
+}
 
 type LookupResult =
   | { found: false }
@@ -14,6 +33,7 @@ type LookupResult =
       department: string | null
       roomNumber: string | null
       attendance: { day: string; label: string; status: 'present' | 'absent' | null }[]
+      schedule: ScheduleDay[]
     }
 
 export const lookupParticipant = createServerFn({ method: 'POST' })
@@ -44,25 +64,48 @@ export const lookupParticipant = createServerFn({ method: 'POST' })
     const storedNumbers = (row.phone ?? '').split(',').map((p) => p.replace(/\D/g, ''))
     if (!storedNumbers.includes(inputDigits)) return { found: false }
 
-    const [room] = row.roomId
-      ? await db.select({ roomNumber: rooms.roomNumber }).from(rooms).where(eq(rooms.id, row.roomId)).limit(1)
-      : []
-
-    const attendanceRows = await db
-      .select({ day: attendance.day, status: attendance.status })
-      .from(attendance)
-      .where(eq(attendance.participantId, row.id))
+    // Everything below is independent of the others — run concurrently.
+    const [roomRows, attendanceRows, sessionRows, resourceRows] = await Promise.all([
+      row.roomId
+        ? db.select({ roomNumber: rooms.roomNumber }).from(rooms).where(eq(rooms.id, row.roomId)).limit(1)
+        : Promise.resolve([]),
+      db
+        .select({ day: attendance.day, status: attendance.status })
+        .from(attendance)
+        .where(eq(attendance.participantId, row.id)),
+      db.select().from(sessions).orderBy(asc(sessions.startTime), asc(sessions.id)),
+      db.select().from(sessionResources).orderBy(asc(sessionResources.id)),
+    ])
 
     return {
       found: true,
       name: row.name,
       designation: row.designation,
       department: row.department,
-      roomNumber: room?.roomNumber ?? null,
+      roomNumber: roomRows[0]?.roomNumber ?? null,
       attendance: TRAINING_DAYS.map((d) => ({
         day: d.value,
         label: d.label,
         status: attendanceRows.find((a) => a.day === d.value)?.status ?? null,
+      })),
+      schedule: TRAINING_DAYS.map((d) => ({
+        day: d.value,
+        label: d.label,
+        sessions: sessionRows
+          .filter((s) => s.day === d.value)
+          .map((s) => ({
+            id: s.id,
+            title: s.title,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            place: s.place,
+            speaker: s.speaker,
+            moderator: s.moderator,
+            notes: s.notes,
+            resources: resourceRows
+              .filter((r) => r.sessionId === s.id)
+              .map((r) => ({ id: r.id, kind: r.kind, label: r.label, url: r.url })),
+          })),
       })),
     }
   })

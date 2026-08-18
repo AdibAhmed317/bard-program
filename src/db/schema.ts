@@ -94,6 +94,32 @@ export const participants = pgTable('participants', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
+export const sessions = pgTable('sessions', {
+  id: serial('id').primaryKey(),
+  day: text('day').notNull(),
+  title: text('title').notNull(),
+  startTime: text('start_time'),
+  endTime: text('end_time'),
+  place: text('place'),
+  speaker: text('speaker'),
+  moderator: text('moderator'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
+export const resourceKindEnum = pgEnum('resource_kind', ['slide', 'file', 'link'])
+
+export const sessionResources = pgTable('session_resources', {
+  id: serial('id').primaryKey(),
+  sessionId: integer('session_id')
+    .notNull()
+    .references(() => sessions.id, { onDelete: 'cascade' }),
+  kind: resourceKindEnum('kind').notNull().default('link'),
+  label: text('label').notNull(),
+  url: text('url').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent'])
 
 export const attendance = pgTable(

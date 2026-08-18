@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Presentation,
   UserCog,
   Users,
   X,
@@ -19,6 +20,7 @@ const links = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/participants', label: 'Participants', icon: Users },
   { to: '/admin/rooms', label: 'Rooms', icon: BedDouble },
+  { to: '/admin/sessions', label: 'Sessions', icon: Presentation },
   { to: '/admin/attendance', label: 'Attendance', icon: CalendarCheck2 },
   { to: '/admin/users', label: 'User Management', icon: UserCog },
 ] as const

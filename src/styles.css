@@ -216,6 +216,12 @@ summary:focus-visible,
   backdrop-filter: blur(10px);
   border-bottom-color: var(--hairline);
 }
+/* Component classes live in the `components` layer so Tailwind utilities always
+   win when they're combined on the same element. Unlayered, these rules sit
+   after the utilities in the output and silently beat them — e.g. `.btn`'s
+   `display: inline-flex` overrode `hidden`, so `hidden lg:inline-flex` buttons
+   still showed up on mobile. */
+@layer components {
 .nav-link {
   font-weight: 600;
   font-size: 0.95rem;
@@ -282,6 +288,8 @@ summary:focus-visible,
 .text-link:hover {
   gap: 0.7rem;
 }
+}
+/* end @layer components (buttons/links) */
 
 /* --- floating info panel (hero) --- */
 .glass-panel {
@@ -423,6 +431,8 @@ summary:focus-visible,
   }
 }
 
+/* Same reasoning as the button layer above — utilities must beat these. */
+@layer components {
 .sidebar-link {
   display: flex;
   align-items: center;
@@ -512,6 +522,8 @@ summary:focus-visible,
   background: var(--ivory-200);
   color: var(--charcoal-700);
 }
+}
+/* end @layer components (admin surfaces) */
 
 .site-footer {
   background: var(--forest-950);

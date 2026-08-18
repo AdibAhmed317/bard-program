@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { AlertTriangle, Check, Loader2, RotateCcw, X } from 'lucide-react'
+import { AlertTriangle, Check, Download, Loader2, RotateCcw, X } from 'lucide-react'
 
-import { TRAINING_DAYS, clearAttendance, listAttendance, markAttendance } from '#/lib/admin-api'
+import {
+  TRAINING_DAYS,
+  clearAttendance,
+  listAllAttendance,
+  listAttendance,
+  markAttendance,
+} from '#/lib/admin-api'
 import { requireAdminRoute } from '#/lib/session'
 import { useAction } from '#/lib/use-action'
 import { AdminShell } from '#/components/admin/shell'
@@ -29,7 +35,29 @@ function AdminAttendance() {
   const mark = useAction(markAttendance)
   const clear = useAction(clearAttendance)
   const [pendingId, setPendingId] = useState<number | null>(null)
-  const error = mark.error ?? clear.error
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+  const error = mark.error ?? clear.error ?? exportError
+
+  async function onExport() {
+    setExporting(true)
+    setExportError(null)
+    try {
+      const { buildAttendanceWorkbook, downloadBlob } = await import('#/lib/excel-export')
+      // Fetch every day, not just the one on screen, so one file covers both.
+      const days = await listAllAttendance()
+      const blob = await buildAttendanceWorkbook(days)
+      const stamp = new Date().toISOString().slice(0, 10)
+      downloadBlob(blob, `IIUC-BARD-Attendance-${stamp}.xlsx`)
+    } catch (e) {
+      console.error('Attendance export failed:', e)
+      setExportError(
+        e instanceof Error ? `Export failed: ${e.message}` : 'Could not build the Excel file.',
+      )
+    } finally {
+      setExporting(false)
+    }
+  }
 
   async function setStatus(participantId: number, status: 'present' | 'absent') {
     setPendingId(participantId)
@@ -60,9 +88,25 @@ function AdminAttendance() {
         ))}
       </div>
 
-      <p className="mt-4 text-sm text-[var(--charcoal-500)]">
-        {presentCount} / {rows.length} marked present
-      </p>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[var(--charcoal-500)]">
+          {presentCount} / {rows.length} marked present
+        </p>
+        <button
+          type="button"
+          disabled={rows.length === 0 || exporting}
+          className="btn btn-outline-forest"
+          title="Download both days as one Excel file"
+          onClick={onExport}
+        >
+          {exporting ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Download className="h-5 w-5" strokeWidth={2} />
+          )}
+          Download Excel
+        </button>
+      </div>
 
       {error && (
         <p className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--crimson-600)] bg-[rgba(158,42,43,0.06)] p-4 text-sm font-semibold text-[var(--crimson-700)]">

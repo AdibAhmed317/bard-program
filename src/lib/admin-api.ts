@@ -158,6 +158,46 @@ export const listAttendance = createServerFn({ method: 'GET' })
       .orderBy(participants.department, participants.name)
   })
 
+/**
+ * Every training day at once, for the "download both days" export.
+ * POST rather than GET on purpose: this is called directly from a click handler
+ * rather than through a route loader, and a GET response can sit in the browser
+ * cache — which meant the export kept re-downloading pre-edit attendance.
+ */
+export const listAllAttendance = createServerFn({ method: 'POST' }).handler(async () => {
+  await requireAdminHandler()
+  const [people, marks] = await Promise.all([
+    db
+      .select({
+        id: participants.id,
+        name: participants.name,
+        department: participants.department,
+        roomNumber: rooms.roomNumber,
+      })
+      .from(participants)
+      .leftJoin(rooms, eq(participants.roomId, rooms.id))
+      .orderBy(participants.department, participants.name),
+    db
+      .select({
+        participantId: attendance.participantId,
+        day: attendance.day,
+        status: attendance.status,
+      })
+      .from(attendance),
+  ])
+
+  return TRAINING_DAYS.map((d) => ({
+    day: d.value,
+    label: d.label,
+    rows: people.map((p) => ({
+      name: p.name,
+      department: p.department,
+      roomNumber: p.roomNumber,
+      status: marks.find((m) => m.participantId === p.id && m.day === d.value)?.status ?? null,
+    })),
+  }))
+})
+
 export const markAttendance = createServerFn({ method: 'POST' })
   .validator((input: { participantId: number; day: string; status: 'present' | 'absent' }) => input)
   .handler(async ({ data }) => {

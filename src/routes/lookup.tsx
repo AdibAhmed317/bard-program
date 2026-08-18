@@ -1,10 +1,34 @@
 import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { AlertTriangle, ArrowLeft, BedDouble, Building2, CheckCircle2, Loader2, Search, XCircle } from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  BedDouble,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  ExternalLink,
+  FileText,
+  Link2,
+  Loader2,
+  MapPin,
+  Mic,
+  Presentation,
+  Search,
+  UserCheck,
+  XCircle,
+} from 'lucide-react'
 
 import { lookupParticipant } from '#/lib/public-api'
+import type { ResourceKind } from '#/lib/sessions-api'
 import logoUrl from '#/assets/logo.webp'
+
+const kindIcon: Record<ResourceKind, typeof Link2> = {
+  slide: Presentation,
+  file: FileText,
+  link: Link2,
+}
 
 export const Route = createFileRoute('/lookup')({ component: LookupPage })
 
@@ -170,6 +194,93 @@ function ResultPanel({ result }: { result: NonNullable<Result> }) {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="mt-6 border-t border-[var(--hairline)] pt-6">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--hairline)]">
+            <CalendarDays className="h-5 w-5 text-[var(--forest-800)]" strokeWidth={1.8} />
+          </span>
+          <p className="text-sm font-bold text-[var(--charcoal-900)]">Programme Schedule</p>
+        </div>
+
+        {result.schedule.every((d) => d.sessions.length === 0) ? (
+          <p className="mt-4 text-sm text-[var(--charcoal-500)]">
+            The detailed session schedule will be published here before the programme begins.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-6">
+            {result.schedule.map((d) => (
+              <div key={d.day}>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--crimson-600)]">
+                  {d.label}
+                </p>
+                {d.sessions.length === 0 ? (
+                  <p className="mt-2 text-sm text-[var(--charcoal-500)]">Not published yet.</p>
+                ) : (
+                  <ul className="mt-3 space-y-3">
+                    {d.sessions.map((s) => (
+                      <li key={s.id} className="rounded-lg bg-[var(--ivory-100)] p-4">
+                        {(s.startTime || s.endTime) && (
+                          <p className="text-sm font-extrabold tabular-nums text-[var(--forest-800)]">
+                            {[s.startTime, s.endTime].filter(Boolean).join(' – ')}
+                          </p>
+                        )}
+                        <p className="font-bold text-[var(--charcoal-900)]">{s.title}</p>
+
+                        <div className="mt-1 flex flex-col gap-1 text-sm text-[var(--charcoal-700)] sm:flex-row sm:flex-wrap sm:gap-x-4">
+                          {s.place && (
+                            <span className="flex items-center gap-1.5">
+                              <MapPin className="h-4 w-4 shrink-0 text-[var(--charcoal-500)]" strokeWidth={1.8} />
+                              {s.place}
+                            </span>
+                          )}
+                          {s.speaker && (
+                            <span className="flex items-center gap-1.5">
+                              <Mic className="h-4 w-4 shrink-0 text-[var(--charcoal-500)]" strokeWidth={1.8} />
+                              {s.speaker}
+                            </span>
+                          )}
+                          {s.moderator && (
+                            <span className="flex items-center gap-1.5">
+                              <UserCheck className="h-4 w-4 shrink-0 text-[var(--charcoal-500)]" strokeWidth={1.8} />
+                              {s.moderator}
+                            </span>
+                          )}
+                        </div>
+
+                        {s.notes && (
+                          <p className="mt-1 text-sm text-[var(--charcoal-500)]">{s.notes}</p>
+                        )}
+
+                        {s.resources.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {s.resources.map((r) => {
+                              const Icon = kindIcon[r.kind]
+                              return (
+                                <a
+                                  key={r.id}
+                                  href={r.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-white px-3 text-sm font-semibold text-[var(--forest-800)] hover:border-[var(--forest-800)]"
+                                >
+                                  <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+                                  {r.label}
+                                  <ExternalLink className="h-3 w-3 shrink-0 text-[var(--charcoal-500)]" strokeWidth={2} />
+                                </a>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

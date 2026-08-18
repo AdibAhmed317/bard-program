@@ -32,8 +32,8 @@ function AdminUsers() {
   async function onCreate(e: React.FormEvent) {
     e.preventDefault()
     if (!form.username.trim() || !form.password) return
-    const ok = await create.run({ data: form })
-    if (ok !== undefined) {
+    const res = await create.run({ data: form })
+    if (res.ok) {
       setForm(emptyForm)
       setShowForm(false)
     }
