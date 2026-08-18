@@ -109,7 +109,7 @@ const schedules: Record<DayKey, ScheduleRow[]> = {
     {
       time: '9:20 AM',
       title: 'Lecture-II',
-      body: "Hon'ble Treasurer, Prof. Dr. Muhammad Mahbubur Rahman",
+      body: "Prof. Dr. Muhammad Mahbubur Rahman, Hon'ble Treasurer",
     },
     { time: '10:00 AM', title: 'Q&A on the Discussion' },
     { time: '10:15 AM', title: 'Tea Break & Networking' },
@@ -966,8 +966,8 @@ function Schedule() {
           Programme Schedule
         </h2>
         <p className='mt-3 max-w-xl text-lg text-[var(--charcoal-700)]'>
-          Teachers&rsquo; Development Program 2026 — 19 – 21 August 2026,
-          BARD, Cumilla.
+          Teachers&rsquo; Development Program 2026 — 19 – 21 August 2026, BARD,
+          Cumilla.
         </p>
       </Reveal>
 
