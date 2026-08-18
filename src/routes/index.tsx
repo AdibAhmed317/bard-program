@@ -156,7 +156,7 @@ const schedules: Record<DayKey, ScheduleRow[]> = {
     {
       time: '8:15 AM',
       title: 'Lecture-VII (Teaching from Hadith)',
-      body: 'Prof. Dr. Md. Abul Kalam Azad, Chairman, SHIS, IIUC',
+      body: 'Prof. Dr. Md. Abul Azad, Chairman, SHIS, IIUC',
     },
     {
       time: '9:00 AM',
