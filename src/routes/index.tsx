@@ -123,7 +123,7 @@ const schedules: Record<DayKey, ScheduleRow[]> = {
     { time: '12:00 PM', title: 'Naseed from Participants' },
     {
       time: '12:15 PM',
-      title: 'Lecture-IV (Registrar Sir)',
+      title: 'Lecture-IV',
       body: "Colonel Md. Quasem, PSC (Retd), Hon'ble Registrar, IIUC",
     },
     { time: '1:00 PM', title: 'Lunch and Prayer Break' },
