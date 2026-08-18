@@ -4,27 +4,10 @@ import { asc, eq } from 'drizzle-orm'
 import { db } from '#/db'
 import { sessionResources, sessions } from '#/db/schema'
 import { requireAdminHandler } from '#/lib/session'
+import { assertSafeUrl } from '#/lib/safe-url'
 
 export const RESOURCE_KINDS = ['slide', 'file', 'link'] as const
 export type ResourceKind = (typeof RESOURCE_KINDS)[number]
-
-/**
- * These URLs are rendered as `href`s, so anything other than http(s) — most
- * importantly `javascript:` — must be rejected before it reaches the database.
- */
-function assertSafeUrl(raw: string) {
-  const trimmed = raw.trim()
-  let parsed: URL
-  try {
-    parsed = new URL(trimmed)
-  } catch {
-    throw new Error('Enter a full link starting with http:// or https://')
-  }
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    throw new Error('Only http:// and https:// links are allowed.')
-  }
-  return parsed.toString()
-}
 
 export const listSessions = createServerFn({ method: 'GET' })
   .validator((input: { day: string }) => input)

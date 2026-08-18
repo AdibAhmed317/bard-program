@@ -3,13 +3,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { AlertTriangle, Loader2, Plus, Trash2 } from 'lucide-react'
 
 import { createRoom, deleteRoom, listRooms } from '#/lib/admin-api'
-import { requireAdminRoute } from '#/lib/session'
 import { useAction } from '#/lib/use-action'
-import { AdminShell } from '#/components/admin/shell'
+import { AdminSkeleton } from '#/components/admin/skeleton'
 
-export const Route = createFileRoute('/admin/rooms')({
-  beforeLoad: requireAdminRoute,
+export const Route = createFileRoute('/admin/_shell/rooms')({
   loader: () => listRooms(),
+  pendingComponent: AdminSkeleton,
   component: AdminRooms,
 })
 
@@ -43,7 +42,7 @@ function AdminRooms() {
   }
 
   return (
-    <AdminShell title="Rooms">
+    <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--charcoal-500)]">{rooms.length} rooms configured</p>
         <button type="button" className="btn btn-forest" onClick={() => setShowForm((v) => !v)}>
@@ -145,6 +144,6 @@ function AdminRooms() {
           </p>
         )}
       </div>
-    </AdminShell>
+    </>
   )
 }

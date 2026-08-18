@@ -1,6 +1,16 @@
 import { useMemo, useRef, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { AlertTriangle, Download, FileSpreadsheet, Loader2, Plus, Search, Trash2, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  Download,
+  FileSpreadsheet,
+  Loader2,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from 'lucide-react'
 import * as XLSX from 'xlsx'
 
 import {
@@ -11,18 +21,17 @@ import {
   listRooms,
   updateParticipant,
 } from '#/lib/admin-api'
-import { requireAdminRoute } from '#/lib/session'
 import { useAction } from '#/lib/use-action'
-import { AdminShell } from '#/components/admin/shell'
+import { AdminSkeleton } from '#/components/admin/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/table'
 
-export const Route = createFileRoute('/admin/participants')({
-  beforeLoad: requireAdminRoute,
+export const Route = createFileRoute('/admin/_shell/participants')({
   // Independent queries — fetch concurrently instead of one after the other.
   loader: async () => {
     const [participants, rooms] = await Promise.all([listParticipants(), listRooms()])
     return { participants, rooms }
   },
+  pendingComponent: AdminSkeleton,
   component: AdminParticipants,
 })
 
@@ -55,6 +64,7 @@ function AdminParticipants() {
 
   const [form, setForm] = useState(emptyForm)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [parsing, setParsing] = useState(false)
   const [importMessage, setImportMessage] = useState<string | null>(null)
   const [pendingRows, setPendingRows] = useState<ImportRow[] | null>(null)
@@ -162,14 +172,35 @@ function AdminParticipants() {
     }
   }
 
-  async function onCreate(e: React.FormEvent) {
+  function startEdit(p: (typeof participants)[number]) {
+    setForm({
+      name: p.name,
+      designation: p.designation ?? '',
+      department: p.department ?? '',
+      phone: p.phone ?? '',
+      email: p.email ?? '',
+      idCardNo: p.idCardNo ?? '',
+      groupLeader: p.groupLeader ?? '',
+    })
+    setEditingId(p.id)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function closeForm() {
+    setForm(emptyForm)
+    setEditingId(null)
+    setShowForm(false)
+  }
+
+  async function onSubmitForm(e: React.FormEvent) {
     e.preventDefault()
     if (!form.name.trim()) return
-    const res = await create.run({ data: form })
-    if (res.ok) {
-      setForm(emptyForm)
-      setShowForm(false)
-    }
+    const res =
+      editingId === null
+        ? await create.run({ data: form })
+        : await update.run({ data: { id: editingId, ...form } })
+    if (res.ok) closeForm()
   }
 
   async function onAssignRoom(participantId: number, roomId: string) {
@@ -190,7 +221,7 @@ function AdminParticipants() {
     : 'No participants in this department.'
 
   return (
-    <AdminShell title="Participants">
+    <>
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block sm:w-64">
@@ -263,7 +294,11 @@ function AdminParticipants() {
             )}
             Import Excel
           </button>
-          <button type="button" className="btn btn-forest" onClick={() => setShowForm((v) => !v)}>
+          <button
+            type="button"
+            className="btn btn-forest"
+            onClick={() => (showForm ? closeForm() : setShowForm(true))}
+          >
             <Plus className="h-5 w-5" strokeWidth={2.2} />
             Add Participant
           </button>
@@ -350,9 +385,12 @@ function AdminParticipants() {
 
       {showForm && (
         <form
-          onSubmit={onCreate}
+          onSubmit={onSubmitForm}
           className="card mt-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3"
         >
+          <p className="text-lg font-extrabold text-[var(--charcoal-900)] sm:col-span-2 lg:col-span-3">
+            {editingId === null ? 'Add Participant' : `Editing ${form.name || 'participant'}`}
+          </p>
           <Field label="Full name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
           <Field label="Designation" value={form.designation} onChange={(v) => setForm({ ...form, designation: v })} />
           <Field label="Department" value={form.department} onChange={(v) => setForm({ ...form, department: v })} />
@@ -361,11 +399,15 @@ function AdminParticipants() {
           <Field label="Teacher ID" value={form.idCardNo} onChange={(v) => setForm({ ...form, idCardNo: v })} />
           <Field label="Group leader" value={form.groupLeader} onChange={(v) => setForm({ ...form, groupLeader: v })} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:col-span-2 lg:col-span-3">
-            <button type="submit" disabled={create.pending} className="btn btn-forest">
-              {create.pending && <Loader2 className="h-5 w-5 animate-spin" />}
-              Save Participant
+            <button
+              type="submit"
+              disabled={create.pending || update.pending}
+              className="btn btn-forest"
+            >
+              {(create.pending || update.pending) && <Loader2 className="h-5 w-5 animate-spin" />}
+              {editingId === null ? 'Save Participant' : 'Save Changes'}
             </button>
-            <button type="button" className="btn btn-outline-forest" onClick={() => setShowForm(false)}>
+            <button type="button" className="btn btn-outline-forest" onClick={closeForm}>
               Cancel
             </button>
           </div>
@@ -386,19 +428,29 @@ function AdminParticipants() {
                   <p className="text-sm text-[var(--charcoal-500)]">{p.designation}</p>
                 )}
               </div>
-              <button
-                type="button"
-                disabled={rowPendingId === p.id}
-                aria-label={`Remove ${p.name}`}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
-                onClick={() => onDelete(p.id)}
-              >
-                {rowPendingId === p.id ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" strokeWidth={1.8} />
-                )}
-              </button>
+              <div className="flex shrink-0 gap-1">
+                <button
+                  type="button"
+                  aria-label={`Edit ${p.name}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--forest-800)] hover:bg-[var(--forest-100)]"
+                  onClick={() => startEdit(p)}
+                >
+                  <Pencil className="h-4 w-4" strokeWidth={1.8} />
+                </button>
+                <button
+                  type="button"
+                  disabled={rowPendingId === p.id}
+                  aria-label={`Remove ${p.name}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
+                  onClick={() => onDelete(p.id)}
+                >
+                  {rowPendingId === p.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                  )}
+                </button>
+              </div>
             </div>
 
             <dl className="mt-3 space-y-1 text-sm">
@@ -483,19 +535,29 @@ function AdminParticipants() {
                   </select>
                 </TableCell>
                 <TableCell>
-                  <button
-                    type="button"
-                    disabled={rowPendingId === p.id}
-                    aria-label={`Remove ${p.name}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
-                    onClick={() => onDelete(p.id)}
-                  >
-                    {rowPendingId === p.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" strokeWidth={1.8} />
-                    )}
-                  </button>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      aria-label={`Edit ${p.name}`}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--forest-800)] hover:bg-[var(--forest-100)]"
+                      onClick={() => startEdit(p)}
+                    >
+                      <Pencil className="h-4 w-4" strokeWidth={1.8} />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={rowPendingId === p.id}
+                      aria-label={`Remove ${p.name}`}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
+                      onClick={() => onDelete(p.id)}
+                    >
+                      {rowPendingId === p.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                      )}
+                    </button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -511,7 +573,7 @@ function AdminParticipants() {
           </TableBody>
         </Table>
       </div>
-    </AdminShell>
+    </>
   )
 }
 

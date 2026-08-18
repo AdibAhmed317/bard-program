@@ -9,18 +9,17 @@ import {
   listAttendance,
   markAttendance,
 } from '#/lib/admin-api'
-import { requireAdminRoute } from '#/lib/session'
 import { useAction } from '#/lib/use-action'
-import { AdminShell } from '#/components/admin/shell'
+import { AdminSkeleton } from '#/components/admin/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/table'
 
-export const Route = createFileRoute('/admin/attendance')({
-  beforeLoad: requireAdminRoute,
+export const Route = createFileRoute('/admin/_shell/attendance')({
   loaderDeps: ({ search }) => ({ day: search.day }),
   loader: ({ deps }) => listAttendance({ data: { day: deps.day ?? TRAINING_DAYS[0].value } }),
   validateSearch: (search: Record<string, unknown>) => ({
     day: typeof search.day === 'string' ? search.day : undefined,
   }),
+  pendingComponent: AdminSkeleton,
   component: AdminAttendance,
 })
 
@@ -74,7 +73,7 @@ function AdminAttendance() {
   const presentCount = rows.filter((r) => r.status === 'present').length
 
   return (
-    <AdminShell title="Attendance">
+    <>
       <div className="flex flex-wrap gap-3">
         {TRAINING_DAYS.map((d) => (
           <button
@@ -225,7 +224,7 @@ function AdminAttendance() {
           </TableBody>
         </Table>
       </div>
-    </AdminShell>
+    </>
   )
 }
 

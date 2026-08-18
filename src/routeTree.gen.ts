@@ -11,13 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LookupRouteImport } from './routes/lookup'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminAttendanceRouteImport } from './routes/admin/attendance'
+import { Route as AdminShellRouteImport } from './routes/admin/_shell'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
-import { Route as AdminParticipantsRouteImport } from './routes/admin/participants'
-import { Route as AdminRoomsRouteImport } from './routes/admin/rooms'
-import { Route as AdminSessionsRouteImport } from './routes/admin/sessions'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminShellIndexRouteImport } from './routes/admin/_shell/index'
+import { Route as AdminShellAttendanceRouteImport } from './routes/admin/_shell/attendance'
+import { Route as AdminShellLinksRouteImport } from './routes/admin/_shell/links'
+import { Route as AdminShellParticipantsRouteImport } from './routes/admin/_shell/participants'
+import { Route as AdminShellRoomsRouteImport } from './routes/admin/_shell/rooms'
+import { Route as AdminShellSessionsRouteImport } from './routes/admin/_shell/sessions'
+import { Route as AdminShellUsersRouteImport } from './routes/admin/_shell/users'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -30,14 +32,9 @@ const LookupRoute = LookupRouteImport.update({
   path: '/lookup',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminAttendanceRoute = AdminAttendanceRouteImport.update({
-  id: '/admin/attendance',
-  path: '/admin/attendance',
+const AdminShellRoute = AdminShellRouteImport.update({
+  id: '/admin/_shell',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -45,25 +42,40 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminParticipantsRoute = AdminParticipantsRouteImport.update({
-  id: '/admin/participants',
-  path: '/admin/participants',
-  getParentRoute: () => rootRouteImport,
+const AdminShellIndexRoute = AdminShellIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminShellRoute,
 } as any)
-const AdminRoomsRoute = AdminRoomsRouteImport.update({
-  id: '/admin/rooms',
-  path: '/admin/rooms',
-  getParentRoute: () => rootRouteImport,
+const AdminShellAttendanceRoute = AdminShellAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AdminShellRoute,
 } as any)
-const AdminSessionsRoute = AdminSessionsRouteImport.update({
-  id: '/admin/sessions',
-  path: '/admin/sessions',
-  getParentRoute: () => rootRouteImport,
+const AdminShellLinksRoute = AdminShellLinksRouteImport.update({
+  id: '/links',
+  path: '/links',
+  getParentRoute: () => AdminShellRoute,
 } as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => rootRouteImport,
+const AdminShellParticipantsRoute = AdminShellParticipantsRouteImport.update({
+  id: '/participants',
+  path: '/participants',
+  getParentRoute: () => AdminShellRoute,
+} as any)
+const AdminShellRoomsRoute = AdminShellRoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => AdminShellRoute,
+} as any)
+const AdminShellSessionsRoute = AdminShellSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AdminShellRoute,
+} as any)
+const AdminShellUsersRoute = AdminShellUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminShellRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -74,89 +86,94 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/lookup': typeof LookupRoute
-  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin': typeof AdminShellRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
-  '/admin/participants': typeof AdminParticipantsRoute
-  '/admin/rooms': typeof AdminRoomsRoute
-  '/admin/sessions': typeof AdminSessionsRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/admin/': typeof AdminIndexRoute
+  '/admin/attendance': typeof AdminShellAttendanceRoute
+  '/admin/links': typeof AdminShellLinksRoute
+  '/admin/participants': typeof AdminShellParticipantsRoute
+  '/admin/rooms': typeof AdminShellRoomsRoute
+  '/admin/sessions': typeof AdminShellSessionsRoute
+  '/admin/users': typeof AdminShellUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/admin/': typeof AdminShellIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/lookup': typeof LookupRoute
-  '/admin/attendance': typeof AdminAttendanceRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/participants': typeof AdminParticipantsRoute
-  '/admin/rooms': typeof AdminRoomsRoute
-  '/admin/sessions': typeof AdminSessionsRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/attendance': typeof AdminShellAttendanceRoute
+  '/admin/links': typeof AdminShellLinksRoute
+  '/admin/participants': typeof AdminShellParticipantsRoute
+  '/admin/rooms': typeof AdminShellRoomsRoute
+  '/admin/sessions': typeof AdminShellSessionsRoute
+  '/admin/users': typeof AdminShellUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/admin': typeof AdminShellIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/lookup': typeof LookupRoute
-  '/admin/attendance': typeof AdminAttendanceRoute
+  '/admin/_shell': typeof AdminShellRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
-  '/admin/participants': typeof AdminParticipantsRoute
-  '/admin/rooms': typeof AdminRoomsRoute
-  '/admin/sessions': typeof AdminSessionsRoute
-  '/admin/users': typeof AdminUsersRoute
-  '/admin/': typeof AdminIndexRoute
+  '/admin/_shell/attendance': typeof AdminShellAttendanceRoute
+  '/admin/_shell/links': typeof AdminShellLinksRoute
+  '/admin/_shell/participants': typeof AdminShellParticipantsRoute
+  '/admin/_shell/rooms': typeof AdminShellRoomsRoute
+  '/admin/_shell/sessions': typeof AdminShellSessionsRoute
+  '/admin/_shell/users': typeof AdminShellUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/admin/_shell/': typeof AdminShellIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/lookup'
-    | '/admin/attendance'
+    | '/admin'
     | '/admin/login'
+    | '/admin/attendance'
+    | '/admin/links'
     | '/admin/participants'
     | '/admin/rooms'
     | '/admin/sessions'
     | '/admin/users'
-    | '/admin/'
     | '/api/auth/$'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/lookup'
-    | '/admin/attendance'
     | '/admin/login'
+    | '/admin/attendance'
+    | '/admin/links'
     | '/admin/participants'
     | '/admin/rooms'
     | '/admin/sessions'
     | '/admin/users'
-    | '/admin'
     | '/api/auth/$'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/lookup'
-    | '/admin/attendance'
+    | '/admin/_shell'
     | '/admin/login'
-    | '/admin/participants'
-    | '/admin/rooms'
-    | '/admin/sessions'
-    | '/admin/users'
-    | '/admin/'
+    | '/admin/_shell/attendance'
+    | '/admin/_shell/links'
+    | '/admin/_shell/participants'
+    | '/admin/_shell/rooms'
+    | '/admin/_shell/sessions'
+    | '/admin/_shell/users'
     | '/api/auth/$'
+    | '/admin/_shell/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LookupRoute: typeof LookupRoute
-  AdminAttendanceRoute: typeof AdminAttendanceRoute
+  AdminShellRoute: typeof AdminShellRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
-  AdminParticipantsRoute: typeof AdminParticipantsRoute
-  AdminRoomsRoute: typeof AdminRoomsRoute
-  AdminSessionsRoute: typeof AdminSessionsRoute
-  AdminUsersRoute: typeof AdminUsersRoute
-  AdminIndexRoute: typeof AdminIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -176,18 +193,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LookupRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
+    '/admin/_shell': {
+      id: '/admin/_shell'
       path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/attendance': {
-      id: '/admin/attendance'
-      path: '/admin/attendance'
-      fullPath: '/admin/attendance'
-      preLoaderRoute: typeof AdminAttendanceRouteImport
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminShellRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
@@ -197,33 +207,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/participants': {
-      id: '/admin/participants'
-      path: '/admin/participants'
+    '/admin/_shell/': {
+      id: '/admin/_shell/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminShellIndexRouteImport
+      parentRoute: typeof AdminShellRoute
+    }
+    '/admin/_shell/attendance': {
+      id: '/admin/_shell/attendance'
+      path: '/attendance'
+      fullPath: '/admin/attendance'
+      preLoaderRoute: typeof AdminShellAttendanceRouteImport
+      parentRoute: typeof AdminShellRoute
+    }
+    '/admin/_shell/links': {
+      id: '/admin/_shell/links'
+      path: '/links'
+      fullPath: '/admin/links'
+      preLoaderRoute: typeof AdminShellLinksRouteImport
+      parentRoute: typeof AdminShellRoute
+    }
+    '/admin/_shell/participants': {
+      id: '/admin/_shell/participants'
+      path: '/participants'
       fullPath: '/admin/participants'
-      preLoaderRoute: typeof AdminParticipantsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AdminShellParticipantsRouteImport
+      parentRoute: typeof AdminShellRoute
     }
-    '/admin/rooms': {
-      id: '/admin/rooms'
-      path: '/admin/rooms'
+    '/admin/_shell/rooms': {
+      id: '/admin/_shell/rooms'
+      path: '/rooms'
       fullPath: '/admin/rooms'
-      preLoaderRoute: typeof AdminRoomsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AdminShellRoomsRouteImport
+      parentRoute: typeof AdminShellRoute
     }
-    '/admin/sessions': {
-      id: '/admin/sessions'
-      path: '/admin/sessions'
+    '/admin/_shell/sessions': {
+      id: '/admin/_shell/sessions'
+      path: '/sessions'
       fullPath: '/admin/sessions'
-      preLoaderRoute: typeof AdminSessionsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AdminShellSessionsRouteImport
+      parentRoute: typeof AdminShellRoute
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
+    '/admin/_shell/users': {
+      id: '/admin/_shell/users'
+      path: '/users'
       fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AdminShellUsersRouteImport
+      parentRoute: typeof AdminShellRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -235,16 +266,35 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminShellRouteChildren {
+  AdminShellAttendanceRoute: typeof AdminShellAttendanceRoute
+  AdminShellLinksRoute: typeof AdminShellLinksRoute
+  AdminShellParticipantsRoute: typeof AdminShellParticipantsRoute
+  AdminShellRoomsRoute: typeof AdminShellRoomsRoute
+  AdminShellSessionsRoute: typeof AdminShellSessionsRoute
+  AdminShellUsersRoute: typeof AdminShellUsersRoute
+  AdminShellIndexRoute: typeof AdminShellIndexRoute
+}
+
+const AdminShellRouteChildren: AdminShellRouteChildren = {
+  AdminShellAttendanceRoute: AdminShellAttendanceRoute,
+  AdminShellLinksRoute: AdminShellLinksRoute,
+  AdminShellParticipantsRoute: AdminShellParticipantsRoute,
+  AdminShellRoomsRoute: AdminShellRoomsRoute,
+  AdminShellSessionsRoute: AdminShellSessionsRoute,
+  AdminShellUsersRoute: AdminShellUsersRoute,
+  AdminShellIndexRoute: AdminShellIndexRoute,
+}
+
+const AdminShellRouteWithChildren = AdminShellRoute._addFileChildren(
+  AdminShellRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LookupRoute: LookupRoute,
-  AdminAttendanceRoute: AdminAttendanceRoute,
+  AdminShellRoute: AdminShellRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
-  AdminParticipantsRoute: AdminParticipantsRoute,
-  AdminRoomsRoute: AdminRoomsRoute,
-  AdminSessionsRoute: AdminSessionsRoute,
-  AdminUsersRoute: AdminUsersRoute,
-  AdminIndexRoute: AdminIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

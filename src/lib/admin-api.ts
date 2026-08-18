@@ -109,13 +109,16 @@ export const updateParticipant = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     await requireAdminHandler()
-    const { id, ...rest } = data
-    if (rest.idCardNo !== undefined) {
-      const idCardNo = rest.idCardNo.trim() || null
-      if (idCardNo) await assertIdCardFree(idCardNo, id)
-      rest.idCardNo = idCardNo ?? undefined
+    const { id, idCardNo, ...rest } = data
+    const patch: Partial<typeof participants.$inferInsert> = { ...rest }
+    if (idCardNo !== undefined) {
+      // Empty must clear the column, not be dropped from the patch — assigning
+      // `undefined` would silently leave the old ID in place.
+      const trimmed = idCardNo.trim() || null
+      if (trimmed) await assertIdCardFree(trimmed, id)
+      patch.idCardNo = trimmed
     }
-    await db.update(participants).set(rest).where(eq(participants.id, id))
+    await db.update(participants).set(patch).where(eq(participants.id, id))
   })
 
 export const deleteParticipant = createServerFn({ method: 'POST' })

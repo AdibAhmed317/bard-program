@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { asc, eq } from 'drizzle-orm'
 
 import { db } from '#/db'
-import { attendance, participants, rooms, sessionResources, sessions } from '#/db/schema'
+import { attendance, links, participants, rooms, sessionResources, sessions } from '#/db/schema'
 import { TRAINING_DAYS } from '#/lib/admin-api'
 import type { ResourceKind } from '#/lib/sessions-api'
 
@@ -29,11 +29,16 @@ type LookupResult =
   | {
       found: true
       name: string
+      idCardNo: string | null
       designation: string | null
       department: string | null
+      phone: string | null
+      email: string | null
+      groupLeader: string | null
       roomNumber: string | null
       attendance: { day: string; label: string; status: 'present' | 'absent' | null }[]
       schedule: ScheduleDay[]
+      links: { id: number; label: string; url: string }[]
     }
 
 export const lookupParticipant = createServerFn({ method: 'POST' })
@@ -47,9 +52,12 @@ export const lookupParticipant = createServerFn({ method: 'POST' })
       .select({
         id: participants.id,
         name: participants.name,
+        idCardNo: participants.idCardNo,
         designation: participants.designation,
         department: participants.department,
         phone: participants.phone,
+        email: participants.email,
+        groupLeader: participants.groupLeader,
         roomId: participants.roomId,
       })
       .from(participants)
@@ -65,7 +73,7 @@ export const lookupParticipant = createServerFn({ method: 'POST' })
     if (!storedNumbers.includes(inputDigits)) return { found: false }
 
     // Everything below is independent of the others — run concurrently.
-    const [roomRows, attendanceRows, sessionRows, resourceRows] = await Promise.all([
+    const [roomRows, attendanceRows, sessionRows, resourceRows, linkRows] = await Promise.all([
       row.roomId
         ? db.select({ roomNumber: rooms.roomNumber }).from(rooms).where(eq(rooms.id, row.roomId)).limit(1)
         : Promise.resolve([]),
@@ -75,14 +83,20 @@ export const lookupParticipant = createServerFn({ method: 'POST' })
         .where(eq(attendance.participantId, row.id)),
       db.select().from(sessions).orderBy(asc(sessions.startTime), asc(sessions.id)),
       db.select().from(sessionResources).orderBy(asc(sessionResources.id)),
+      db.select({ id: links.id, label: links.label, url: links.url }).from(links).orderBy(asc(links.id)),
     ])
 
     return {
       found: true,
       name: row.name,
+      idCardNo: row.idCardNo,
       designation: row.designation,
       department: row.department,
+      phone: row.phone,
+      email: row.email,
+      groupLeader: row.groupLeader,
       roomNumber: roomRows[0]?.roomNumber ?? null,
+      links: linkRows,
       attendance: TRAINING_DAYS.map((d) => ({
         day: d.value,
         label: d.label,

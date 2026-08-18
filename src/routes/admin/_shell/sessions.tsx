@@ -9,6 +9,7 @@ import {
   MapPin,
   Mic,
   Paperclip,
+  Pencil,
   Plus,
   Presentation,
   Trash2,
@@ -22,21 +23,21 @@ import {
   addSessionResource,
   createSession,
   deleteSession,
+  updateSession,
   deleteSessionResource,
   listSessions,
 } from '#/lib/sessions-api'
 import type { ResourceKind } from '#/lib/sessions-api'
-import { requireAdminRoute } from '#/lib/session'
 import { useAction } from '#/lib/use-action'
-import { AdminShell } from '#/components/admin/shell'
+import { AdminSkeleton } from '#/components/admin/skeleton'
 
-export const Route = createFileRoute('/admin/sessions')({
-  beforeLoad: requireAdminRoute,
+export const Route = createFileRoute('/admin/_shell/sessions')({
   loaderDeps: ({ search }) => ({ day: search.day }),
   loader: ({ deps }) => listSessions({ data: { day: deps.day ?? TRAINING_DAYS[0].value } }),
   validateSearch: (search: Record<string, unknown>) => ({
     day: typeof search.day === 'string' ? search.day : undefined,
   }),
+  pendingComponent: AdminSkeleton,
   component: AdminSessions,
 })
 
@@ -63,24 +64,48 @@ function AdminSessions() {
   const activeDay = day ?? TRAINING_DAYS[0].value
 
   const create = useAction(createSession)
+  const update = useAction(updateSession)
   const remove = useAction(deleteSession)
   const addResource = useAction(addSessionResource)
   const removeResource = useAction(deleteSessionResource)
 
   const [form, setForm] = useState(emptySession)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [pendingId, setPendingId] = useState<number | null>(null)
 
-  const error = create.error ?? remove.error ?? addResource.error ?? removeResource.error
+  const error =
+    create.error ?? update.error ?? remove.error ?? addResource.error ?? removeResource.error
 
-  async function onCreate(e: React.FormEvent) {
+  function startEdit(s: (typeof rows)[number]) {
+    setForm({
+      title: s.title,
+      startTime: s.startTime ?? '',
+      endTime: s.endTime ?? '',
+      place: s.place ?? '',
+      speaker: s.speaker ?? '',
+      moderator: s.moderator ?? '',
+      notes: s.notes ?? '',
+    })
+    setEditingId(s.id)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function closeForm() {
+    setForm(emptySession)
+    setEditingId(null)
+    setShowForm(false)
+  }
+
+  async function onSubmitForm(e: React.FormEvent) {
     e.preventDefault()
     if (!form.title.trim()) return
-    const res = await create.run({ data: { ...form, day: activeDay } })
-    if (res.ok) {
-      setForm(emptySession)
-      setShowForm(false)
-    }
+    const res =
+      editingId === null
+        ? await create.run({ data: { ...form, day: activeDay } })
+        : await update.run({ data: { id: editingId, ...form } })
+    if (res.ok) closeForm()
   }
 
   async function onDelete(id: number, title: string) {
@@ -91,7 +116,7 @@ function AdminSessions() {
   }
 
   return (
-    <AdminShell title="Sessions">
+    <>
       <div className="flex flex-wrap gap-3">
         {TRAINING_DAYS.map((d) => (
           <button
@@ -109,7 +134,7 @@ function AdminSessions() {
         <p className="text-sm text-[var(--charcoal-500)]">
           {rows.length} session{rows.length === 1 ? '' : 's'} scheduled
         </p>
-        <button type="button" className="btn btn-forest" onClick={() => setShowForm((v) => !v)}>
+        <button type="button" className="btn btn-forest" onClick={() => (showForm ? closeForm() : setShowForm(true))}>
           <Plus className="h-5 w-5" strokeWidth={2.2} />
           Add Session
         </button>
@@ -123,7 +148,10 @@ function AdminSessions() {
       )}
 
       {showForm && (
-        <form onSubmit={onCreate} className="card mt-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:p-6">
+        <form onSubmit={onSubmitForm} className="card mt-6 grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:p-6">
+          <p className="text-lg font-extrabold text-[var(--charcoal-900)] sm:col-span-2">
+            {editingId === null ? 'Add Session' : `Editing “${form.title || 'session'}”`}
+          </p>
           <div className="sm:col-span-2">
             <label className="field-label">Session title *</label>
             <input
@@ -185,11 +213,15 @@ function AdminSessions() {
             />
           </div>
           <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row">
-            <button type="submit" disabled={create.pending} className="btn btn-forest">
-              {create.pending && <Loader2 className="h-5 w-5 animate-spin" />}
-              Save Session
+            <button
+              type="submit"
+              disabled={create.pending || update.pending}
+              className="btn btn-forest"
+            >
+              {(create.pending || update.pending) && <Loader2 className="h-5 w-5 animate-spin" />}
+              {editingId === null ? 'Save Session' : 'Save Changes'}
             </button>
-            <button type="button" className="btn btn-outline-forest" onClick={() => setShowForm(false)}>
+            <button type="button" className="btn btn-outline-forest" onClick={closeForm}>
               Cancel
             </button>
           </div>
@@ -232,19 +264,29 @@ function AdminSessions() {
                 </dl>
                 {s.notes && <p className="mt-2 text-sm text-[var(--charcoal-500)]">{s.notes}</p>}
               </div>
-              <button
-                type="button"
-                disabled={pendingId === s.id}
-                aria-label={`Delete ${s.title}`}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
-                onClick={() => onDelete(s.id, s.title)}
-              >
-                {pendingId === s.id ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" strokeWidth={1.8} />
-                )}
-              </button>
+              <div className="flex shrink-0 gap-1">
+                <button
+                  type="button"
+                  aria-label={`Edit ${s.title}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--forest-800)] hover:bg-[var(--forest-100)]"
+                  onClick={() => startEdit(s)}
+                >
+                  <Pencil className="h-4 w-4" strokeWidth={1.8} />
+                </button>
+                <button
+                  type="button"
+                  disabled={pendingId === s.id}
+                  aria-label={`Delete ${s.title}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--crimson-600)] hover:bg-[#fbebec] disabled:opacity-40"
+                  onClick={() => onDelete(s.id, s.title)}
+                >
+                  {pendingId === s.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Resources sessionId={s.id} resources={s.resources} onRemove={removeResource} onAdd={addResource} />
@@ -257,7 +299,7 @@ function AdminSessions() {
           </p>
         )}
       </div>
-    </AdminShell>
+    </>
   )
 }
 

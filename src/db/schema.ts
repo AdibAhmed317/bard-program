@@ -141,6 +141,14 @@ export const sessionResources = pgTable('session_resources', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
+/** WhatsApp (or other) group links shown to participants after a lookup. */
+export const links = pgTable('links', {
+  id: serial('id').primaryKey(),
+  label: text('label').notNull(),
+  url: text('url').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent'])
 
 export const attendance = pgTable(

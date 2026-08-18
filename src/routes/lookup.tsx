@@ -10,9 +10,11 @@ import {
   CheckCircle2,
   ExternalLink,
   FileText,
+  IdCard,
   Link2,
   Loader2,
   MapPin,
+  MessageCircle,
   Mic,
   Presentation,
   Search,
@@ -161,6 +163,23 @@ function ResultPanel({ result }: { result: NonNullable<Result> }) {
         {[result.designation, result.department].filter(Boolean).join(' · ') || '—'}
       </p>
 
+      <div className="mt-6 border-t border-[var(--hairline)] pt-6">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--hairline)]">
+            <IdCard className="h-5 w-5 text-[var(--forest-800)]" strokeWidth={1.8} />
+          </span>
+          <p className="text-sm font-bold text-[var(--charcoal-900)]">Your Details</p>
+        </div>
+        <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+          <Detail label="Teacher ID" value={result.idCardNo} />
+          <Detail label="Designation" value={result.designation} />
+          <Detail label="Department" value={result.department} />
+          <Detail label="Phone" value={result.phone} />
+          <Detail label="Email" value={result.email} />
+          <Detail label="Group Leader" value={result.groupLeader} />
+        </dl>
+      </div>
+
       <div className="mt-6 flex items-center gap-3 border-t border-[var(--hairline)] pt-6">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--hairline)]">
           <BedDouble className="h-5 w-5 text-[var(--forest-800)]" strokeWidth={1.8} />
@@ -172,6 +191,34 @@ function ResultPanel({ result }: { result: NonNullable<Result> }) {
           </p>
         </div>
       </div>
+
+      {result.links.length > 0 && (
+        <div className="mt-6 border-t border-[var(--hairline)] pt-6">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--hairline)]">
+              <MessageCircle className="h-5 w-5 text-[var(--forest-800)]" strokeWidth={1.8} />
+            </span>
+            <p className="text-sm font-bold text-[var(--charcoal-900)]">Groups & Links</p>
+          </div>
+          <div className="mt-4 flex flex-col gap-2">
+            {result.links.map((l) => (
+              <a
+                key={l.id}
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-[var(--hairline)] bg-white px-4 py-3 font-semibold text-[var(--forest-800)] hover:border-[var(--forest-800)]"
+              >
+                <span className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+                  {l.label}
+                </span>
+                <ExternalLink className="h-4 w-4 shrink-0 text-[var(--charcoal-500)]" strokeWidth={2} />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 border-t border-[var(--hairline)] pt-6">
         <div className="flex items-center gap-3">
@@ -282,6 +329,15 @@ function ResultPanel({ result }: { result: NonNullable<Result> }) {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function Detail({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div>
+      <dt className="text-xs font-bold uppercase tracking-wide text-[var(--charcoal-500)]">{label}</dt>
+      <dd className="break-words text-base text-[var(--charcoal-900)]">{value || '—'}</dd>
     </div>
   )
 }

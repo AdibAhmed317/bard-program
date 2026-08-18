@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import {
   BedDouble,
   CalendarCheck2,
   LayoutDashboard,
   LogOut,
   Menu,
+  MessageCircle,
   Presentation,
   UserCog,
   Users,
@@ -22,12 +23,18 @@ const links = [
   { to: '/admin/rooms', label: 'Rooms', icon: BedDouble },
   { to: '/admin/sessions', label: 'Sessions', icon: Presentation },
   { to: '/admin/attendance', label: 'Attendance', icon: CalendarCheck2 },
+  { to: '/admin/links', label: 'WhatsApp & Links', icon: MessageCircle },
   { to: '/admin/users', label: 'User Management', icon: UserCog },
 ] as const
 
-export function AdminShell({ title, children }: { title: string; children: ReactNode }) {
+export function AdminShell({ children }: { children: ReactNode }) {
   const { data: session } = authClient.useSession()
+  const { pathname } = useLocation()
   const [navOpen, setNavOpen] = useState(false)
+
+  // Derived from the nav rather than passed in, so the shell can live in the
+  // layout route and stay mounted across navigations.
+  const title = links.find((l) => l.to === pathname.replace(/\/$/, ''))?.label ?? 'Dashboard'
 
   // Escape closes the mobile drawer, and body scroll is locked while it's open
   // so the page behind doesn't scroll under the overlay.

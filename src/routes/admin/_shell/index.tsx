@@ -2,17 +2,16 @@ import { createFileRoute } from '@tanstack/react-router'
 import { BedDouble, CalendarCheck2, Users } from 'lucide-react'
 
 import { listParticipants, listRooms } from '#/lib/admin-api'
-import { requireAdminRoute } from '#/lib/session'
-import { AdminShell } from '#/components/admin/shell'
+import { AdminSkeleton } from '#/components/admin/skeleton'
 
-export const Route = createFileRoute('/admin/')({
-  beforeLoad: requireAdminRoute,
+export const Route = createFileRoute('/admin/_shell/')({
   // Both queries are independent — run them concurrently rather than waiting
   // for participants to come back before even starting rooms.
   loader: async () => {
     const [participants, rooms] = await Promise.all([listParticipants(), listRooms()])
     return { participants, rooms }
   },
+  pendingComponent: AdminSkeleton,
   component: AdminDashboard,
 })
 
@@ -44,7 +43,7 @@ function AdminDashboard() {
   ]
 
   return (
-    <AdminShell title="Dashboard">
+    <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map(({ icon: Icon, label, value, hint }) => (
           <div key={label} className="card p-5 sm:p-6">
@@ -75,6 +74,6 @@ function AdminDashboard() {
           )}
         </ul>
       </div>
-    </AdminShell>
+    </>
   )
 }

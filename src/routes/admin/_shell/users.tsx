@@ -3,16 +3,15 @@ import { createFileRoute } from '@tanstack/react-router'
 import { AlertTriangle, Loader2, Plus, Trash2 } from 'lucide-react'
 
 import { createAdminUser, deleteAdminUser, listAdminUsers } from '#/lib/users-api'
-import { requireAdminRoute } from '#/lib/session'
 import { useAction } from '#/lib/use-action'
-import { AdminShell } from '#/components/admin/shell'
+import { AdminSkeleton } from '#/components/admin/skeleton'
 import { PasswordField } from '#/components/admin/password-field'
 import { authClient } from '#/lib/auth-client'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#/components/ui/table'
 
-export const Route = createFileRoute('/admin/users')({
-  beforeLoad: requireAdminRoute,
+export const Route = createFileRoute('/admin/_shell/users')({
   loader: () => listAdminUsers(),
+  pendingComponent: AdminSkeleton,
   component: AdminUsers,
 })
 
@@ -47,7 +46,7 @@ function AdminUsers() {
   }
 
   return (
-    <AdminShell title="User Management">
+    <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--charcoal-500)]">
           {users.length} admin account{users.length === 1 ? '' : 's'}
@@ -200,6 +199,6 @@ function AdminUsers() {
           </TableBody>
         </Table>
       </div>
-    </AdminShell>
+    </>
   )
 }
