@@ -34,84 +34,164 @@ const navLinks = [
 ];
 
 const stats = [
-  { value: '02', label: 'Days' },
+  { value: '03', label: 'Days' },
   { value: '01', label: 'Venue' },
   { value: '19 AUG', label: 'Departure' },
   { value: '100%', label: 'Participation' },
 ];
 
 const journey = [
-  { tag: '19 AUG · 4:00 PM', title: 'Departure', body: 'IIUC Kumira Campus' },
-  { tag: '20 AUG', title: 'Training Day 01', body: 'BARD, Cumilla' },
-  { tag: '21 AUG', title: 'Training Day 02', body: 'BARD, Cumilla' },
-  { tag: 'Final Day', title: 'Assessment', body: 'Mandatory evaluation' },
-  { tag: 'After', title: 'Return Journey', body: 'Back to IIUC Kumira' },
+  { tag: '19 AUG · 4:00 PM', title: 'Departure', body: 'From IIUC Campus' },
+  {
+    tag: '19 AUG · 9:30 PM',
+    title: 'Inaugural Session',
+    body: 'BARD, Cumilla',
+  },
+  { tag: '20 AUG', title: 'Day 2', body: 'Lecture-I to Lecture-VI' },
+  {
+    tag: '21 AUG · 2:30 PM',
+    title: 'Evaluation Test',
+    body: 'Then prize giving & closing',
+  },
+  { tag: '21 AUG · 5:00 PM', title: 'Departure', body: 'Return journey' },
 ];
 
 type ScheduleRow = {
   time: string;
   title: string;
-  body: string;
+  body?: string;
   highlight?: boolean;
 };
 
-const schedules: { day1: ScheduleRow[]; day2: ScheduleRow[] } = {
+type DayKey = 'day1' | 'day2' | 'day3';
+
+const dayTabs: { key: DayKey; label: string; heading: string }[] = [
+  {
+    key: 'day1',
+    label: 'Day 1 — 19 Aug',
+    heading: '19/08/2026 — Wednesday (Day 1)',
+  },
+  {
+    key: 'day2',
+    label: 'Day 2 — 20 Aug',
+    heading: '20/08/2026 — Thursday (Day 2)',
+  },
+  {
+    key: 'day3',
+    label: 'Day 3 — 21 Aug',
+    heading: '21/08/2026 — Friday (Day 3)',
+  },
+];
+
+// Verbatim from context/TDP_2026_Schedule.docx — `body` is the second line of
+// the Activity cell. Keep both in sync with that document.
+const schedules: Record<DayKey, ScheduleRow[]> = {
   day1: [
+    { time: '4:00 PM', title: 'Departure from IIUC Campus' },
+    { time: '7:30 PM', title: 'Reached the Training Venue' },
+    { time: '8:00 PM', title: 'Boarding at Hostel, Solatul Isha & Dinner' },
     {
-      time: '09:30',
-      title: 'Assembly & Registration',
-      body: 'Arrival and check-in at the Lalmai Auditorium, BARD.',
-    },
-    {
-      time: '10:00',
+      time: '9:30 PM',
       title: 'Inaugural Session',
-      body: 'Opening remarks by the Pro Vice Chancellor and BARD officials.',
+      body: "Prof. Dr. Mohammad Ali Azadi, Hon'ble VC, IIUC",
     },
-    {
-      time: '11:00',
-      title: 'Session I — Foundations of Effective Teaching',
-      body: 'Facilitated workshop for participating lecturers.',
-    },
-    { time: '13:00', title: 'Lunch', body: 'Break at the BARD cafeteria.' },
-    {
-      time: '14:00',
-      title: 'Session II — Curriculum & Assessment Design',
-      body: 'Group workshop and structured discussion.',
-    },
-    {
-      time: '16:00',
-      title: 'Group Reflection',
-      body: 'Small-group discussion and case studies.',
-    },
+    { time: '10:30 PM – 4:30 AM', title: 'Rest' },
   ],
   day2: [
+    { time: '4:30 AM', title: 'Solatul Fazr' },
+    { time: '7:00 AM', title: 'Breakfast and Preparation' },
     {
-      time: '09:00',
-      title: 'Session III — Research & Professional Growth',
-      body: 'Facilitated session for academic development.',
+      time: '8:15 AM',
+      title: 'Lecture-I: Teaching from Holy Quran',
+      body: 'Prof. Dr. B. M. Mofizur Rahman al Azhari',
+    },
+    { time: '9:00 AM', title: 'Q&A on the Dars' },
+    {
+      time: '9:20 AM',
+      title: 'Lecture-II',
+      body: "Hon'ble Treasurer, Prof. Dr. Muhammad Mahbubur Rahman",
+    },
+    { time: '10:00 AM', title: 'Q&A on the Discussion' },
+    { time: '10:15 AM', title: 'Tea Break & Networking' },
+    {
+      time: '10:45 AM',
+      title:
+        'Lecture-III (Higher Studies & Scholarship): Discussion on Moral Teaching',
+      body: 'Prof. Ismail',
+    },
+    { time: '11:45 AM', title: 'Q&A on the Discussion' },
+    { time: '12:00 PM', title: 'Naseed from Participants' },
+    {
+      time: '12:15 PM',
+      title: 'Lecture-IV (Registrar Sir)',
+      body: "Colonel Md. Quasem, PSC (Retd), Hon'ble Registrar, IIUC",
+    },
+    { time: '1:00 PM', title: 'Lunch and Prayer Break' },
+    { time: '2:20 PM', title: 'Ready for Next Session' },
+    {
+      time: '2:30 PM',
+      title:
+        'Workshop/Brainstorming Session — Topics-based Presentation (30 min prep / 5 min presentation)',
+      body: 'Conductors: Rana Ahmed, Nazrul Haque, Sohel Islam, Shamsul Momin, and others',
     },
     {
-      time: '11:00',
-      title: 'Session IV — Classroom Technology & Innovation',
-      body: 'Interactive workshop.',
+      time: '3:30 PM',
+      title: 'Lecture-V: Research & Publication',
+      body: 'Professor Dr. Md. Atiar Rahman, Former Vice-Chancellor, RSTU',
     },
-    { time: '13:00', title: 'Lunch', body: 'Break at the BARD cafeteria.' },
+    { time: '4:30 PM', title: 'Q&A on the Discussion' },
     {
-      time: '14:00',
-      title: 'Final Assessment',
-      body: 'Mandatory evaluation examination for all participants.',
+      time: '4:45 PM',
+      title:
+        'Solatul Asr, Light Refreshment and Roaming around the Academy Compound',
+    },
+    {
+      time: '7:00 PM',
+      title: 'Lecture-VI',
+      body: "Prof. Dr. Mohammad Hasmat Ali, Hon'ble Pro VC, IIUC",
+    },
+    { time: '8:00 PM', title: 'Prayer & Dinner' },
+    {
+      time: '9:15 – 10:30 PM',
+      title: 'Perform as You Like (Program Continues)',
+    },
+  ],
+  day3: [
+    { time: '4:50 AM', title: 'Solatul Fazr' },
+    { time: '7:00 AM', title: 'Breakfast and Preparation' },
+    {
+      time: '8:15 AM',
+      title:
+        'Lecture-VII: Teaching from Hadith (Hadith Jibreel and Teaching Methodology of Prophet Muhammad PBUH)',
+      body: 'Prof. Dr. Md. Abul Kalam Azad, Chairman, SHIS, IIUC',
+    },
+    {
+      time: '8:45 AM',
+      title: 'Lecture-VIII: Discussion',
+      body: 'Mr. Mohammad Shahjahan, Vice Chairman, BoT, IIUC — Abu Bakar Rafique',
+    },
+    { time: '9:45 AM', title: 'Tea Break' },
+    {
+      time: '10:15 AM',
+      title:
+        'Lecture-IX: Discussion: Pedagogy, Teaching Methodology at Tertiary Level',
+      body: 'Professor Niaz Ahmed Khan, Ph.D., Former VC, Dhaka University',
+    },
+    { time: '12:30 PM', title: 'Solatul Jumua, and Lunch' },
+    {
+      time: '2:30 PM',
+      title: 'Evaluation Test',
+      body: 'Rana Sir',
       highlight: true,
     },
+    { time: '3:00 PM', title: 'Reflection' },
     {
-      time: '16:00',
-      title: 'Closing Session',
-      body: 'Concluding remarks and certificate distribution.',
+      time: '3:30 PM',
+      title:
+        'Prize Giving and Closing Session with Vote of Thanks from the Program Convener',
     },
-    {
-      time: '16:30',
-      title: 'Departure Preparation',
-      body: 'Group assembly for the return journey.',
-    },
+    { time: '4:30 PM', title: 'Prayer' },
+    { time: '5:00 PM', title: 'Departure' },
   ],
 };
 
@@ -601,7 +681,7 @@ function Hero() {
             className='hero-in mt-2 text-lg text-white/75'
             style={{ animationDelay: '360ms' }}
           >
-            Two-Day Training Programme for Male Lecturers
+            Three-Day Training Programme for Male Lecturers
           </p>
 
           <div
@@ -631,13 +711,14 @@ function Hero() {
             </p>
             <p className='mt-1 text-xl font-extrabold text-white'>Departure</p>
             <p className='text-base font-semibold text-white/70'>4:00 PM</p>
+            <p className='text-sm font-semibold text-white/55'>IIUC Campus</p>
           </div>
           <div className='my-5 h-px bg-white/20' />
           <div>
             <p className='text-xs font-bold uppercase tracking-[0.25em] text-[var(--brass-500)]'>
-              20—21 Aug
+              19—21 Aug
             </p>
-            <p className='mt-1 text-xl font-extrabold text-white'>Training</p>
+            <p className='mt-1 text-xl font-extrabold text-white'>Programme</p>
             <p className='text-base font-semibold text-white/70'>
               BARD, Cumilla
             </p>
@@ -682,7 +763,7 @@ function Intro() {
             id='intro-heading'
             className='mt-5 text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-[1.08] text-[var(--charcoal-900)]'
           >
-            A focused two-day programme for academic development.
+            A focused three-day programme for academic development.
           </h2>
         </div>
         <div className='flex gap-6 lg:col-span-7 lg:col-start-6'>
@@ -696,7 +777,7 @@ function Intro() {
             </p>
             <div className='mt-8 flex items-center gap-3 border-l-2 border-[var(--brass-600)] pl-4'>
               <p className='text-lg font-bold text-[var(--charcoal-900)]'>
-                20—21 August 2026
+                19—21 August 2026
                 <span className='mx-2 text-[var(--charcoal-500)]'>·</span>
                 BARD, Cumilla
               </p>
@@ -762,12 +843,12 @@ function Journey() {
           />
           {journey.map((step, i) => (
             <Reveal
-              key={step.title}
+              key={step.tag + step.title}
               delay={i * 90}
               className='relative z-10 w-44 text-left'
             >
               <span
-                className={`journey-dot block h-6 w-6 rounded-full ${step.title === 'Assessment' ? 'is-accent' : ''}`}
+                className={`journey-dot block h-6 w-6 rounded-full ${step.title === 'Evaluation Test' ? 'is-accent' : ''}`}
               />
               <p className='mt-5 text-xs font-bold uppercase tracking-[0.2em] text-[var(--brass-600)]'>
                 {step.tag}
@@ -788,9 +869,13 @@ function Journey() {
           aria-hidden='true'
         />
         {journey.map((step, i) => (
-          <Reveal key={step.title} delay={i * 70} className='relative'>
+          <Reveal
+            key={step.tag + step.title}
+            delay={i * 70}
+            className='relative'
+          >
             <span
-              className={`journey-dot absolute -left-9 top-1 block h-6 w-6 rounded-full ${step.title === 'Assessment' ? 'is-accent' : ''}`}
+              className={`journey-dot absolute -left-9 top-1 block h-6 w-6 rounded-full ${step.title === 'Evaluation Test' ? 'is-accent' : ''}`}
             />
             <p className='text-xs font-bold uppercase tracking-[0.2em] text-[var(--brass-600)]'>
               {step.tag}
@@ -855,7 +940,7 @@ function VenueFeature() {
               throughout the programme.
             </p>
             <p className='mt-4 text-base font-bold text-[var(--charcoal-900)]'>
-              20—21 August 2026
+              19—21 August 2026
             </p>
             <a
               href='https://www.google.com/maps/search/?api=1&query=Bangladesh+Academy+for+Rural+Development+Cumilla'
@@ -876,8 +961,9 @@ function VenueFeature() {
 /* -------------------------------- schedule ------------------------------------ */
 
 function Schedule() {
-  const [day, setDay] = useState<'day1' | 'day2'>('day1');
+  const [day, setDay] = useState<DayKey>('day1');
   const rows = schedules[day];
+  const activeDay = dayTabs.find((tab) => tab.key === day) ?? dayTabs[0];
   return (
     <section
       id='schedule'
@@ -895,8 +981,8 @@ function Schedule() {
           Programme Schedule
         </h2>
         <p className='mt-3 max-w-xl text-lg text-[var(--charcoal-700)]'>
-          An indicative outline — the detailed session-wise schedule will be
-          shared before departure.
+          Teachers&rsquo; Development Program 2026 — 19 – 21 August 2026,
+          BARD, Cumilla.
         </p>
       </Reveal>
 
@@ -905,27 +991,24 @@ function Schedule() {
         role='tablist'
         aria-label='Select training day'
       >
-        <button
-          type='button'
-          role='tab'
-          aria-selected={day === 'day1'}
-          className={`btn ${day === 'day1' ? 'btn-forest' : 'btn-outline-forest'}`}
-          onClick={() => setDay('day1')}
-        >
-          Day 01 — 20 Aug
-        </button>
-        <button
-          type='button'
-          role='tab'
-          aria-selected={day === 'day2'}
-          className={`btn ${day === 'day2' ? 'btn-forest' : 'btn-outline-forest'}`}
-          onClick={() => setDay('day2')}
-        >
-          Day 02 — 21 Aug
-        </button>
+        {dayTabs.map((tab) => (
+          <button
+            key={tab.key}
+            type='button'
+            role='tab'
+            aria-selected={day === tab.key}
+            className={`btn ${day === tab.key ? 'btn-forest' : 'btn-outline-forest'}`}
+            onClick={() => setDay(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div role='tabpanel' className='mt-6'>
+      <div role='tabpanel' className='mt-8'>
+        <p className='pb-4 text-sm font-bold uppercase tracking-[0.2em] text-[var(--brass-600)]'>
+          {activeDay.heading}
+        </p>
         {rows.map((row, i) => (
           <Reveal
             key={row.time + row.title}
@@ -933,7 +1016,7 @@ function Schedule() {
             className={`schedule-row flex flex-col gap-2 py-6 sm:flex-row sm:items-baseline sm:gap-8 ${row.highlight ? 'is-highlight px-4 sm:px-6' : ''}`}
           >
             <p
-              className={`w-24 shrink-0 text-2xl font-extrabold ${row.highlight ? 'text-[var(--crimson-600)]' : 'text-[var(--charcoal-900)]'}`}
+              className={`w-40 shrink-0 text-2xl font-extrabold ${row.highlight ? 'text-[var(--crimson-600)]' : 'text-[var(--charcoal-900)]'}`}
             >
               {row.time}
             </p>
@@ -946,9 +1029,11 @@ function Schedule() {
                   </span>
                 )}
               </p>
-              <p className='mt-1 text-base text-[var(--charcoal-700)]'>
-                {row.body}
-              </p>
+              {row.body && (
+                <p className='mt-1 text-base text-[var(--charcoal-700)]'>
+                  {row.body}
+                </p>
+              )}
             </div>
           </Reveal>
         ))}

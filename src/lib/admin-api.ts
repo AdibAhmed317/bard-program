@@ -6,8 +6,9 @@ import { attendance, participants, rooms } from '#/db/schema'
 import { requireAdminHandler } from '#/lib/session'
 
 export const TRAINING_DAYS = [
-  { value: '2026-08-20', label: '20 Aug · Day 1' },
-  { value: '2026-08-21', label: '21 Aug · Day 2' },
+  { value: '2026-08-19', label: '19 Aug · Day 1' },
+  { value: '2026-08-20', label: '20 Aug · Day 2' },
+  { value: '2026-08-21', label: '21 Aug · Day 3' },
 ] as const
 
 /* --------------------------------- rooms ---------------------------------- */
