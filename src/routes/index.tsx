@@ -914,7 +914,7 @@ function BusSchedule() {
               <FileText className='h-4 w-4' strokeWidth={2.2} /> PDF Document
             </p>
             <p className='mt-2 text-xl font-extrabold text-white'>
-              Bus Schedule (TTP)
+              Bus Schedule
             </p>
             <div className='mt-6 flex flex-col gap-3 sm:flex-row'>
               <a
