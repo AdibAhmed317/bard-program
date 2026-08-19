@@ -7,6 +7,8 @@ import {
   BadgeCheck,
   BookOpen,
   Bus,
+  Download,
+  FileText,
   Mail,
   MapPin,
   Menu,
@@ -24,6 +26,8 @@ import bardPhotoUrl from '#/assets/bard.jpg';
 export const Route = createFileRoute('/')({ component: Home });
 
 /* ---------------------------------- data ---------------------------------- */
+
+const busScheduleUrl = '/bus-schedule.pdf';
 
 const navLinks = [
   { href: '#programme', label: 'Programme' },
@@ -495,6 +499,7 @@ function Home() {
         <Intro />
         <Stats />
         <Journey />
+        <BusSchedule />
         <VenueFeature />
         <Schedule />
         <BeforeYouLeave />
@@ -871,6 +876,66 @@ function Journey() {
             <p className='text-sm text-[var(--charcoal-500)]'>{step.body}</p>
           </Reveal>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- bus schedule -------------------------------- */
+
+function BusSchedule() {
+  return (
+    <section
+      id='transport'
+      aria-labelledby='transport-heading'
+      className='motif-lattice relative overflow-hidden bg-[var(--forest-900)] py-20 sm:py-24'
+    >
+      <div className='wrap relative z-10 flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between'>
+        <Reveal className='max-w-2xl'>
+          <span className='inline-flex items-center gap-2 rounded-full bg-[var(--brass-500)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[var(--forest-950)]'>
+            <Bus className='h-4 w-4' strokeWidth={2.2} /> Transport
+          </span>
+          <h2
+            id='transport-heading'
+            className='mt-5 text-[clamp(2rem,4vw,3.25rem)] font-extrabold leading-tight text-white'
+          >
+            Bus Schedule
+          </h2>
+          <p className='mt-4 text-lg leading-relaxed text-white/75'>
+            Buses leave IIUC Kumira Campus at 4:00 PM on 19 August. Bus
+            assignments and reporting details are published in the official
+            schedule &mdash; check yours before departure day.
+          </p>
+        </Reveal>
+
+        <Reveal delay={120} className='w-full shrink-0 lg:w-auto'>
+          <div className='glass-panel p-6 sm:p-8'>
+            <p className='flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-[var(--brass-500)]'>
+              <FileText className='h-4 w-4' strokeWidth={2.2} /> PDF Document
+            </p>
+            <p className='mt-2 text-xl font-extrabold text-white'>
+              Bus Schedule (TTP)
+            </p>
+            <div className='mt-6 flex flex-col gap-3 sm:flex-row'>
+              <a
+                href={busScheduleUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='btn btn-ivory'
+              >
+                View Schedule{' '}
+                <ArrowUpRight className='h-5 w-5' strokeWidth={2.2} />
+              </a>
+              <a
+                href={busScheduleUrl}
+                download='IIUC-TDP-2026-Bus-Schedule.pdf'
+                className='btn btn-outline-ivory'
+              >
+                <Download className='h-5 w-5' strokeWidth={2.2} /> Download
+              </a>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -1363,6 +1428,17 @@ function Footer() {
                 <a href={l.href}>{l.label}</a>
               </li>
             ))}
+            <li>
+              <a
+                href={busScheduleUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='inline-flex items-center gap-2'
+              >
+                <Bus className='h-4 w-4 shrink-0' strokeWidth={1.8} /> Bus
+                Schedule (PDF)
+              </a>
+            </li>
           </ul>
         </nav>
 
