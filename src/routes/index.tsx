@@ -660,7 +660,7 @@ function Hero() {
             style={{ animationDelay: '320ms' }}
           >
             <span className='text-lg font-bold tracking-wide'>
-              20—21 AUGUST 2026
+              19—21 AUGUST 2026
             </span>
             <span className='text-white/50'>·</span>
             <span className='text-lg font-bold tracking-wide'>
@@ -1031,7 +1031,7 @@ function Schedule() {
           Programme Schedule
         </h2>
         <p className='mt-3 max-w-xl text-lg text-[var(--charcoal-700)]'>
-          Teachers&rsquo; Development Program 2026 — 19 – 21 August 2026, BARD,
+          Teachers&rsquo; Development Training 2026 — 19 – 21 August 2026, BARD,
           Cumilla.
         </p>
       </Reveal>
@@ -1324,7 +1324,7 @@ function FinalCta() {
             Training Programme?
           </h2>
           <p className='mt-6 text-xl font-bold tracking-wide text-[var(--brass-500)]'>
-            20—21 AUGUST 2026 · BARD · CUMILLA
+            19—21 AUGUST 2026 · BARD · CUMILLA
           </p>
           <div className='mt-10 flex flex-wrap items-center justify-center gap-4'>
             <a href='/lookup' className='btn btn-ivory'>
